@@ -1865,6 +1865,36 @@ body.locked .wrap,body.locked .topbar,body.locked .slide-dots,body.locked .credi
 .act-gate.ok .act-card{animation:actOut .6s cubic-bezier(.7,0,.84,0) forwards}
 @keyframes actOut{to{opacity:0;transform:perspective(900px) rotateX(-12deg) translateY(-24px) scale(.95)}}
 
+/* "Start stocking": gentle zoom-in pop, breathing glow, rings and a bouncing arrow to invite a click */
+.btn-pop{position:relative;isolation:isolate;animation:popIn .9s cubic-bezier(.34,1.56,.64,1) .35s both,popBreath 2.8s ease-in-out 1.4s infinite;transform-origin:center}
+@keyframes popIn{0%{opacity:0;transform:scale(.6)}60%{opacity:1;transform:scale(1.08)}100%{transform:scale(1)}}
+@keyframes popBreath{0%,100%{transform:scale(1);box-shadow:0 10px 28px -12px rgba(122,167,255,.55)}12%{transform:scale(1.12)}22%{transform:scale(1.05)}32%{transform:scale(1.1)}50%{transform:scale(1.04);box-shadow:0 16px 40px -10px rgba(122,167,255,.9),0 0 26px -4px rgba(122,167,255,.6)}}
+.btn-pop .bp-ring{position:absolute;inset:0;border-radius:inherit;border:2px solid color-mix(in srgb,var(--pink) 70%,#fff);opacity:0;pointer-events:none;z-index:-1;animation:popRing 2.8s cubic-bezier(.2,.6,.3,1) 1.4s infinite}
+.btn-pop .bp-ring.r2{animation-delay:2.1s;border-color:color-mix(in srgb,var(--mint) 70%,#fff)}
+@keyframes popRing{0%{opacity:.75;transform:scale(1)}80%,100%{opacity:0;transform:scale(1.35,1.6)}}
+.btn-pop svg{animation:popArrow 2.8s ease-in-out 1.4s infinite}
+@keyframes popArrow{0%,100%{transform:translateY(0)}20%{transform:translateY(3px)}35%{transform:translateY(-1px)}50%{transform:translateY(2px)}}
+.btn-pop:hover{animation-play-state:paused;transform:scale(1.1)!important;transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
+.btn-pop:hover .bp-ring{animation-duration:1.2s}
+.btn-pop:active{transform:scale(.96)!important}
+@media (prefers-reduced-motion: reduce){.btn-pop,.btn-pop .bp-ring,.btn-pop svg{animation:none}}
+
+.combo-opt.add{justify-content:flex-start!important;position:sticky;top:-6px;z-index:2;display:flex;align-items:center;gap:8px;margin:-6px -6px 6px;padding:11px 14px;border-radius:20px 20px 10px 10px;font-weight:700;color:var(--mint);background:color-mix(in srgb,var(--mint) 14%,var(--surface-2));box-shadow:inset 0 -1px 0 color-mix(in srgb,var(--mint) 35%,transparent)}
+:root:not([data-theme="light"]) .combo-opt.add{background:color-mix(in srgb,var(--mint) 16%,rgb(32,35,43))}
+.combo-opt.add .ico{width:16px;height:16px;padding:2px;border-radius:6px;background:var(--mint);color:#06150f;box-sizing:content-box}
+.combo-opt.add b{font-weight:700;color:var(--ink)}
+.combo-opt.add:hover,.combo-opt.add.hl{filter:brightness(1.12)}
+.input.add-flash{animation:addFlash .9s ease-out}
+@keyframes addFlash{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--mint) 70%,transparent)}100%{box-shadow:0 0 0 10px transparent}}
+
+.combo-opt.add{white-space:nowrap}
+.combo-list:has(.combo-opt.add){right:auto;min-width:max(100%,250px)}
+
+/* rows: flat 2D lift (3D lift broke click hit-testing on Safari / Mac) and the whole row is clickable */
+.row:not(.row-head){cursor:pointer;-webkit-tap-highlight-color:transparent}
+.row:hover{transform:translateY(-2px) scale(1.006)}
+.row:not(.row-head)>*{position:relative;z-index:3}
+
 /* demo */
 .demo-pill{position:fixed;right:14px;bottom:12px;z-index:70;display:flex;flex-direction:column;align-items:flex-end;gap:2px;padding:8px 14px;border-radius:14px;background:linear-gradient(135deg,#FF4D6D,#FF8A3D);color:#fff;font-size:11.5px;line-height:1.25;box-shadow:0 10px 30px -10px rgba(255,90,90,.8);pointer-events:none}
 .demo-pill b{font-size:13px;font-weight:800;letter-spacing:.03em}
@@ -2318,6 +2348,8 @@ Object.assign(I18N.en,{'cr.tel':'Tel','cr.by':'Developed by','cr.rights':'All ri
 Object.assign(I18N.th,{'cr.tel':'โทร','cr.by':'พัฒนาโดย','cr.rights':'สงวนลิขสิทธิ์','cr.noresell':'ห้ามนำไปขายต่อ','cr.short':'โดย Norawid Khao-ubon','cr.noresellLong':'ห้ามนำไปขายต่อ — ห้ามจำหน่าย ขายต่อ หรือเผยแพร่ซอฟต์แวร์นี้เพื่อการค้าโดยไม่ได้รับอนุญาตเป็นลายลักษณ์อักษรจากผู้พัฒนา'});
 Object.assign(I18N.en,{'act.title':'Activate NXStock on this computer','act.p':'First time on this computer or browser — enter the developer username and password to start.','act.user':'Username','act.pass':'Password','act.show':'Show password','act.go':'Activate','act.bad':'Username or password is not correct','act.ok':'NXStock is activated on this computer'});
 Object.assign(I18N.th,{'act.title':'เปิดใช้งาน NXStock บนเครื่องนี้','act.p':'ใช้งานครั้งแรกบนคอมพิวเตอร์หรือเบราว์เซอร์นี้ — กรอกชื่อผู้ใช้และรหัสผ่านของผู้พัฒนาเพื่อเริ่มใช้งาน','act.user':'ชื่อผู้ใช้','act.pass':'รหัสผ่าน','act.show':'แสดงรหัสผ่าน','act.go':'เปิดใช้งาน','act.bad':'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง','act.ok':'เปิดใช้งาน NXStock บนเครื่องนี้แล้ว'});
+Object.assign(I18N.en,{'combo.addItem':'Add new item','combo.addItemPh':'Type the new item name…','combo.addCat':'Add new category','combo.addCatPh':'Type the new category…'});
+Object.assign(I18N.th,{'combo.addItem':'เพิ่มสินค้าใหม่','combo.addItemPh':'พิมพ์ชื่อสินค้าใหม่…','combo.addCat':'เพิ่มหมวดหมู่ใหม่','combo.addCatPh':'พิมพ์ชื่อหมวดหมู่ใหม่…'});
 Object.assign(I18N.en,{'model.topShort':'Top sales','model.topLong':'Top sales amount, last 30 days'});
 Object.assign(I18N.th,{'model.topShort':'ยอดขายสูงสุด','model.topLong':'ยอดขายสูงสุด 30 วันล่าสุด'});
 Object.assign(I18N.en,{'thm.title':'Bill theme','thm.hint':'colour, gradient & background','thm.business':'Ready-made for your business','thm.fill':'Fill','thm.solid':'Solid','thm.grad':'Gradient','thm.c1':'Colour','thm.c1g':'From','thm.c2':'To','thm.swap':'Swap colours','thm.angle':'Angle','thm.bg':'Background',
@@ -2896,7 +2928,7 @@ function stagger(root, sel = '.card,.kpi,.tcard,.row,.starter,.page-head,.sec-he
   $$(sel, root).slice(0, 40).forEach((el, i) => { el.style.setProperty('--i', i); el.classList.remove('in3d'); void el.offsetWidth; el.classList.add('in3d'); el.addEventListener('animationend', () => el.classList.remove('in3d'), { once: true }); });
 }
 
-function combo(input, { source, onPick, onType, allowNew = true } = {}) {
+function combo(input, { source, onPick, onType, onAdd, addFirst, allowNew = true } = {}) {
   const wrap = input.closest('.combo'); if (!wrap || wrap.dataset.ready) return; wrap.dataset.ready = 1;
   wrap.insertAdjacentHTML('beforeend', `<button type="button" class="combo-caret" tabindex="-1" aria-label="options">${ic('chevD', 'ico-sm')}</button>`);
   const list = document.createElement('div'); list.className = 'combo-list'; wrap.appendChild(list);
@@ -2906,7 +2938,8 @@ function combo(input, { source, onPick, onType, allowNew = true } = {}) {
     items = all.filter(o => !q || (o.label + ' ' + (o.key || '')).toLowerCase().includes(q)).slice(0, 60);
     const exact = all.some(o => o.label.toLowerCase() === raw.toLowerCase());
     let h = items.map((o, i) => `<div class="combo-opt" data-i="${i}"><span>${esc(o.label)}</span>${o.sub ? `<small>${esc(o.sub)}</small>` : ''}</div>`).join('');
-    if (allowNew && raw && !exact) h += `<div class="combo-opt new" data-new="1">${ic('plus', 'ico-sm')}<span>“${esc(raw)}”</span></div>`;
+    if (addFirst) h = `<div class="combo-opt add" data-add="1">${ic('plus', 'ico-sm')}<span>${esc(addFirst)}${raw && !exact ? ` <b>“${esc(raw)}”</b>` : ''}</span></div>` + h;
+    else if (allowNew && raw && !exact) h += `<div class="combo-opt new" data-new="1">${ic('plus', 'ico-sm')}<span>“${esc(raw)}”</span></div>`;
     if (!h) h = `<div class="combo-empty">—</div>`;
     list.innerHTML = h; hl = -1; wrap.classList.add('open'); lift(true); place();
   };
@@ -2928,17 +2961,22 @@ function combo(input, { source, onPick, onType, allowNew = true } = {}) {
   const pick = i => { const o = items[i]; if (!o) return; input.value = o.label; close(); filtering = false; onPick && onPick(o); fire(); const [x, y] = centerOf(input); FX.burst(x, y, { count: 10, speed: 3, life: 34 }); };
   const mark = () => { const els = list.querySelectorAll('.combo-opt'); els.forEach((el, i) => el.classList.toggle('hl', i === hl)); els[hl] && els[hl].scrollIntoView({ block: 'nearest' }); };
   input.addEventListener('focus', () => { filtering = false; open(); });
+  input.addEventListener('click', () => { if (!wrap.classList.contains('open') && !input.readOnly) { filtering = false; open(); } });
   input.addEventListener('input', () => { if (silent) return; filtering = true; open(); onType && onType(input.value); });
   input.addEventListener('keydown', e => {
     if (!wrap.classList.contains('open')) { if (e.key === 'ArrowDown') { open(); e.preventDefault(); } return; }
     const n = list.querySelectorAll('.combo-opt').length;
     if (e.key === 'ArrowDown') { hl = Math.min(n - 1, hl + 1); mark(); e.preventDefault(); }
     else if (e.key === 'ArrowUp') { hl = Math.max(0, hl - 1); mark(); e.preventDefault(); }
-    else if (e.key === 'Enter') { if (hl >= 0) { e.preventDefault(); e.stopPropagation(); const el = list.querySelectorAll('.combo-opt')[hl]; if (el.dataset.new) { close(); onPick && onPick(null, input.value.trim()); } else pick(+el.dataset.i); } else close(); }
+    else if (e.key === 'Enter') { if (hl >= 0) { e.preventDefault(); e.stopPropagation(); const el = list.querySelectorAll('.combo-opt')[hl]; if (el.dataset.add) doAdd(); else if (el.dataset.new) { close(); onPick && onPick(null, input.value.trim()); } else pick(+el.dataset.i); } else close(); }
     else if (e.key === 'Escape') { close(); e.stopPropagation(); }
     else if (e.key === 'Tab') close();
   });
-  list.addEventListener('mousedown', e => { e.preventDefault(); const el = e.target.closest('.combo-opt'); if (!el) return; if (el.dataset.new) { close(); onPick && onPick(null, input.value.trim()); } else pick(+el.dataset.i); });
+  const doAdd = () => { const raw = input.value.trim(), exact = source().some(o => o.label.toLowerCase() === raw.toLowerCase()); close(); filtering = false;
+    if (!raw || exact) { input.value = ''; fire(); setTimeout(() => { input.focus(); close(); }, 0); onAdd ? onAdd('') : onPick && onPick(null, ''); }
+    else { onAdd ? onAdd(raw) : onPick && onPick(null, raw); }
+    input.classList.remove('add-flash'); void input.offsetWidth; input.classList.add('add-flash'); };
+  list.addEventListener('mousedown', e => { e.preventDefault(); const el = e.target.closest('.combo-opt'); if (!el) return; if (el.dataset.add) { doAdd(); return; } if (el.dataset.new) { close(); onPick && onPick(null, input.value.trim()); } else pick(+el.dataset.i); });
   wrap.querySelector('.combo-caret').addEventListener('mousedown', e => { e.preventDefault(); if (wrap.classList.contains('open')) close(); else { input.focus(); filtering = false; open(); } });
   input.addEventListener('blur', () => setTimeout(close, 120));
 }
@@ -4072,7 +4110,7 @@ function renderHome() {
         <span class="htag"><b>${fmtMoney(T.value)}</b>${t('tag.value')}</span>
         <span class="htag htag-sales"><b>${fmtMoney(today.rev)}</b>${t('tag.today')}</span>
       </div>
-      <div class="hero-cta"><a href="#stock" class="btn btn-primary btn-lg">${ic('in')} ${t('hero.cta1')}</a><a href="#scan" class="btn btn-lg btn-scanfx"><span class="sf-c c1"></span><span class="sf-c c2"></span><span class="sf-c c3"></span><span class="sf-c c4"></span><span class="sf-laser"></span>${ic('scan')} ${t('hero.cta2')}</a></div>
+      <div class="hero-cta"><a href="#stock" class="btn btn-primary btn-lg btn-pop"><span class="bp-ring"></span><span class="bp-ring r2"></span>${ic('in')} ${t('hero.cta1')}</a><a href="#scan" class="btn btn-lg btn-scanfx"><span class="sf-c c1"></span><span class="sf-c c2"></span><span class="sf-c c3"></span><span class="sf-c c4"></span><span class="sf-laser"></span>${ic('scan')} ${t('hero.cta2')}</a></div>
       ${DB.settings.demo && DB.items.length ? `<div class="demo-banner">${ic('package', 'ico-sm')} ${t('demo.banner')} <button data-act="clear">${t('demo.clear')}</button></div>` : ''}
     </div>
     <div class="hero-model" id="hero-model" aria-label="3D warehouse model">
@@ -4139,9 +4177,11 @@ function renderStock(prefId) {
   let sel = null;
   const fill = it => { sel = it; if (it) { name.value = F(it, 'name'); cat.value = F(it, 'category'); unit.value = F(it, 'unit'); vendor.value = F(it, 'vendor'); loc.value = it.location || ''; buy.value = it.buyPrice ?? ''; sell.value = it.sellEst ?? ''; } upd(); };
   combo(name, { source: () => DB.items.map(it => ({ label: F(it, 'name'), sub: `${it.code} · ${fmtNum(st(it.id).qty)} ${F(it, 'unit')}`, key: it.code + ' ' + (it.num || ''), item: it })),
+    addFirst: t('combo.addItem'),
+    onAdd: raw => { sel = null; if (!raw) { [cat, unit, vendor, loc, buy, sell, note].forEach(x => x.value = ''); name.placeholder = t('combo.addItemPh'); } upd(); },
     onPick: o => { if (o) fill(o.item); else { sel = null; upd(); } },
     onType: val => { const ex = DB.items.find(i => F(i, 'name').toLowerCase() === val.trim().toLowerCase()); if (ex) { if (ex !== sel) fill(ex); } else { sel = null; upd(); } } });
-  combo(cat, { source: () => opts(catsList()) });
+  combo(cat, { addFirst: t('combo.addCat'), onAdd: raw => { if (!raw) cat.placeholder = t('combo.addCatPh'); upd(); }, source: () => opts(catsList()) });
   combo(unit, { source: () => opts(unitsList()) });
   combo(vendor, { source: () => opts(vendorsList()) });
   combo(loc, { source: () => opts(locsList()) });
@@ -4194,7 +4234,9 @@ function renderList() {
     $('#ls-sort').onchange = e => { S.list.sort = e.target.value; listRows(true); };
     $('#ls-low').onclick = () => { S.list.low = !S.list.low; listRows(true); };
     if (!v.dataset.bound) v.dataset.bound = 1, v.addEventListener('click', e => {
-      const row = e.target.closest('.row[data-id]'); if (!row) return; const it = itemById(row.dataset.id); if (!it) return;
+      // find the row even if the browser's hit-test missed it (Safari / Mac with transformed glass rows)
+      const row = e.target.closest('.row[data-id]') || (e.target.closest('button,a,input,select,textarea,.modal') ? null : [...v.querySelectorAll('.row[data-id]')].find(r => { const q = r.getBoundingClientRect(); return e.clientX >= q.left && e.clientX <= q.right && e.clientY >= q.top && e.clientY <= q.bottom; }));
+      if (!row) return; const it = itemById(row.dataset.id); if (!it) return;
       const b = e.target.closest('[data-act]'); const act = b ? b.dataset.act : 'open';
       if (act === 'dash') location.hash = 'item/' + it.id;
       else if (act === 'qr') openPrintModal(it);
@@ -4589,7 +4631,7 @@ function openEdit(it) {
     <div class="field full"><label for="ed-sell">${t('f.sell')}</label><div class="money"><span>${esc(DB.settings.currency)}</span><input id="ed-sell" type="number" class="input" min="0" step="0.01" value="${it.sellEst ?? ''}"></div></div>
   </div><div class="m-actions"><button class="btn" data-close>${t('btn.cancel')}</button><button class="btn btn-primary" id="ed-save">${ic('check')} ${t('btn.save')}</button></div></div>`);
   const E = m.el;
-  combo($('#ed-cat', E), { source: () => opts(catsList()) }); combo($('#ed-unit', E), { source: () => opts(unitsList()) });
+  combo($('#ed-cat', E), { addFirst: t('combo.addCat'), onAdd: raw => { if (!raw) $('#ed-cat', E).placeholder = t('combo.addCatPh'); }, source: () => opts(catsList()) }); combo($('#ed-unit', E), { source: () => opts(unitsList()) });
   combo($('#ed-vendor', E), { source: () => opts(vendorsList()) }); combo($('#ed-loc', E), { source: () => opts(locsList()) });
   $('#ed-save', E).onclick = e => {
     const nm = $('#ed-name', E).value.trim(); if (!nm) return shake($('#ed-name', E), t('err.name'));
@@ -5076,12 +5118,12 @@ function sha256Hex(str) {
 function isActivated() { try { const a = JSON.parse(localStorage.getItem(ACT_KEY) || 'null'); return !!(a && a.k === ACT_HASH.slice(8, 24)); } catch (e) { return false; } }
 function activationGate(done) { done(); }
 /* ================= DEMO MODE: view & click only — nothing can be typed, saved, printed or exported ================= */
-Object.assign(I18N.en,{'demo.pill':'DEMO · view only','demo.block':'Demo version — view only. Changes and printing are disabled.','demo.buy':'Get the full version: 065-938-9638'});
-Object.assign(I18N.th,{'demo.pill':'เวอร์ชันสาธิต · ดูอย่างเดียว','demo.block':'เวอร์ชันสาธิต — ดูได้อย่างเดียว ไม่สามารถบันทึก แก้ไข หรือพิมพ์ได้','demo.buy':'สนใจเวอร์ชันเต็ม โทร 065-938-9638'});
+Object.assign(I18N.en,{'foot.local':'Demo version · nothing is saved','demo.pill':'DEMO · view only','demo.block':'Demo version — view only. Changes and printing are disabled.','demo.buy':'Get the full version: 065-938-9638'});
+Object.assign(I18N.th,{'foot.local':'เวอร์ชันสาธิต · ไม่บันทึกข้อมูล','demo.pill':'เวอร์ชันสาธิต · ดูอย่างเดียว','demo.block':'เวอร์ชันสาธิต — ดูได้อย่างเดียว ไม่สามารถบันทึก แก้ไข หรือพิมพ์ได้','demo.buy':'สนใจเวอร์ชันเต็ม โทร 065-938-9638'});
 const DEMO_BLOCK = ['#stk-confirm','#wd-confirm','#pp-go','#qw-go','#bf-add','#bf-scan','#bl-ok','#bl-confirm','#bl-cancel','#bl-new','#bl-reopen','#bp-edit','#bp-new','#bp-print','#pm-print','#pp-print',
   '#ed-save','#dv-ok','#dv-del','#sig-ok','#sig-clear','#set-save','#set-export','#set-import','#set-clear','#set-seed','#hist-csv','#fast-toggle','#bf-nocust',
-  '[data-act=del]','[data-act=clear]','[data-act=seed]','[data-hcancel]','[data-hdel]','[data-ldel]','[data-sig-up]','[data-sig-draw]','[data-sig-clr]','[data-up]','[data-bdel]'].join(',');
-const DEMO_TYPE_OK = '#ls-q,#manual-code,#cs-code,#hist-f';      // search / look-up boxes only
+  '.combo-opt.add','[data-act=del]','[data-act=clear]','[data-act=seed]','[data-hcancel]','[data-hdel]','[data-ldel]','[data-sig-up]','[data-sig-draw]','[data-sig-clr]','[data-up]','[data-bdel]'].join(',');
+const DEMO_TYPE_OK = '#ls-q,#ls-cat,#ls-sort,#ls-low,#manual-code,#cs-code,#hist-f,.pf *,.picker *,#pm-size *,#pm-lang *';      // search, look-up and view filters only
 let demoT = 0;
 const demoSay = () => { const n = Date.now(); if (n - demoT < 1500) return; demoT = n; toast(t('demo.block') + ' · ' + t('demo.buy'), 'warn', 3600); };
 ['click', 'pointerdown', 'mousedown', 'change', 'input'].forEach(type => document.addEventListener(type, e => {
