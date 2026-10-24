@@ -5078,6 +5078,15 @@ document.addEventListener('keydown', e => {
   if (e.key.length === 1) kb.buf += e.key;
 });
 
+/* stock list: open an item from a click anywhere on its row, even if the browser delivered the click to something else
+   (some Mac browsers mis-hit-test transformed glass rows — the click then lands on the list background or an overlay) */
+document.addEventListener('click', e => {
+  if (S.view !== 'list' || e.button !== 0 || modalOpen()) return;
+  const tgt = e.target; if (tgt.closest && (tgt.closest('.row[data-id]') || tgt.closest('button,a,input,select,textarea,label,.modal,.topbar,.nav,.combo,.picker,.credit-chip,.slide-dots'))) return;
+  const row = [...document.querySelectorAll('#view-list .row[data-id]')].find(r => { const q = r.getBoundingClientRect(); return q.width && e.clientX >= q.left && e.clientX <= q.right && e.clientY >= q.top && e.clientY <= q.bottom; });
+  if (!row) return; const it = itemById(row.dataset.id); if (!it) return;
+  e.preventDefault(); e.stopPropagation(); openItemPopup(it, 'out');
+}, true);
 /* ================= INIT ================= */
 function init() {
   if (DB.settings.company === 'STOCKYARD') DB.settings.company = 'NXStock'; if (ensureNums()) save(); setTimeout(() => Scanners.restore(), 800);
