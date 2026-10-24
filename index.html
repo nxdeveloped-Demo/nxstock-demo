@@ -734,7 +734,7 @@ html[lang="th"] .tc-label,html[lang="th"] .card-h h3,html[lang="th"] .eyebrow,ht
 /* dropdowns: always on top of following form rows, scrollable, 85% opacity */
 .card>*:focus-within,.modal>*:focus-within,.row>*:focus-within,.form-grid>*:focus-within,.field:focus-within{z-index:30}
 .combo.open{z-index:31}
-.combo-list{background:rgba(255,255,255,.85)!important;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+.combo-list{background:rgba(255,255,255,.85)!important;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 :root:not([data-theme="light"]) .combo-list{background:rgba(28,31,38,.85)!important}
 .picker{background:rgba(255,255,255,.85)!important}
 :root:not([data-theme="light"]) .picker{background:rgba(28,31,38,.85)!important}
@@ -1619,7 +1619,7 @@ html[lang="th"] .hl-dots{margin-top:8px}
 /* balanced donut: chart left, legend right */
 .chart-box.dn-split{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:14px;align-items:center;container-type:inline-size}
 .dn-chart{position:relative;height:100%;min-height:0}
-.dn-legend{display:grid;gap:6px;align-content:center;max-height:100%;overflow:auto;padding:4px 4px 4px 0;scrollbar-width:thin}
+.dn-legend{display:grid;gap:6px;align-content:center;max-height:100%;overflow:auto;padding:4px 4px 4px 0}
 .dn-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;grid-template-rows:auto auto;column-gap:8px;row-gap:5px;align-items:center;width:100%;padding:7px 10px;border:0;border-radius:12px;background:var(--glass-2);color:var(--ink);font:inherit;text-align:left;cursor:pointer;box-shadow:inset 0 0 0 1px var(--hair);transition:transform .25s,box-shadow .25s,opacity .25s;animation:dnIn .6s cubic-bezier(.16,1,.3,1) calc(.2s + var(--k) * 70ms) backwards}
 @keyframes dnIn{from{opacity:0;transform:translateX(14px)}}
 .dn-row:hover{transform:translateX(-2px);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--c) 55%,transparent),0 0 14px -4px var(--c)}
@@ -1900,6 +1900,23 @@ tr.tx-link{cursor:pointer;transition:background .2s}
 tr.tx-link:hover td{background:color-mix(in srgb,var(--accent) 9%,transparent)}
 tr.tx-link:hover td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
 tr.tx-link:active td{background:color-mix(in srgb,var(--accent) 15%,transparent)}
+
+/* every scrollbar: slim rounded glass track + gradient thumb (no arrow buttons) — same look as the dropdowns */
+::-webkit-scrollbar{width:11px;height:11px;background:transparent}
+::-webkit-scrollbar-button{display:none;width:0;height:0}
+::-webkit-scrollbar-track{border-radius:99px;background:color-mix(in srgb,var(--ink) 6%,transparent);border:3px solid transparent;background-clip:padding-box}
+::-webkit-scrollbar-thumb{min-height:36px;border-radius:99px;border:3px solid transparent;background:linear-gradient(180deg,var(--pink),var(--violet) 55%,var(--mint)) padding-box;box-shadow:inset 0 0 0 1px rgba(255,255,255,.22)}
+::-webkit-scrollbar-thumb:horizontal{background:linear-gradient(90deg,var(--pink),var(--violet) 55%,var(--mint)) padding-box}
+::-webkit-scrollbar-thumb:hover{border-width:2px;filter:brightness(1.15)}
+::-webkit-scrollbar-thumb:active{border-width:2px;filter:brightness(1.3)}
+::-webkit-scrollbar-corner{background:transparent}
+:is(.combo-list,.picker,.sc-list,.hs-list,.modal)::-webkit-scrollbar-track{margin:14px 0}
+.nav::-webkit-scrollbar{display:none}
+@supports (-moz-appearance:none){*{scrollbar-width:thin;scrollbar-color:color-mix(in srgb,var(--pink) 75%,var(--violet)) transparent}.nav{scrollbar-width:none}}
+
+#bill-history tr.bill-row{cursor:pointer;transition:background .2s}
+#bill-history tr.bill-row:hover td{background:color-mix(in srgb,var(--accent) 9%,transparent)}
+#bill-history tr.bill-row:hover td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
 
 /* demo */
 .demo-pill{position:fixed;right:14px;bottom:12px;z-index:70;display:flex;flex-direction:column;align-items:flex-end;gap:2px;padding:8px 14px;border-radius:14px;background:linear-gradient(135deg,#FF4D6D,#FF8A3D);color:#fff;font-size:11.5px;line-height:1.25;box-shadow:0 10px 30px -10px rgba(255,90,90,.8);pointer-events:none}
@@ -3666,11 +3683,15 @@ function renderBill(keep) {
   sum();
   // ---- history ----
   const H = DB.bills.filter(x => x.lines.length || x.status !== 'draft' || x.id === b.id).slice(0, 40);
-  f('bl-hist').innerHTML = H.length ? `<div class="table-wrap"><table><thead><tr><th>${t('bill.no')}</th><th>${t('bill.date')}</th><th>${t('bill.to')}</th><th class="r">${t('bill.th.qty')}</th><th class="r">${t('bill.grand')}</th><th>${t('t.type')}</th><th></th></tr></thead><tbody>${H.map(x => `<tr class="${x.id === b.id ? 'cur' : ''}"><td class="mono">${x.issuedAt || x.status === 'draft' ? `<b>${esc(x.no)}</b>` : `<span class="muted" title="${esc(t('bill.noNoT'))}">${t('bill.noNo')}</span>`}</td><td>${fmtDate(fromYmd(x.date))}</td><td>${x.noCustomer ? t('bill.walkin') : esc(x.customer.name || '—')}</td><td class="r">${t('bill.items', { n: x.lines.length })}</td><td class="r"><b>${fmtMoney(billTotals(x).grand)}</b></td><td><span class="chip ${x.status === 'issued' ? 'badge-in' : x.status === 'cancelled' ? 'badge-empty' : 'badge-violet'}">${t('bill.status.' + x.status)}</span></td><td class="r"><div class="row-actions" style="justify-content:flex-end">${x.id !== b.id ? `<button class="btn btn-sm" data-hopen="${x.id}">${t('bill.open')}</button>` : ''}${x.status !== 'cancelled' && x.lines.length ? `<button class="icon-btn sm" data-hprint="${x.id}" title="${esc(t('bill.print'))}">${ic('printer', 'ico-sm')}</button>` : ''}${x.status !== 'cancelled' ? `<button class="icon-btn sm del" data-hcancel="${x.id}" title="${esc(t('bill.cancel'))}">${ic('trash', 'ico-sm')}</button>` : `<button class="icon-btn sm del" data-hdel="${x.id}" title="${esc(t('btn.delete'))}">${ic('x', 'ico-sm')}</button>`}</div></td></tr>`).join('')}</tbody></table></div>` : `<div class="empty-sm">${ic('bill')} ${t('bill.histNone')}</div>`;
+  f('bl-hist').innerHTML = H.length ? `<div class="table-wrap"><table><thead><tr><th>${t('bill.no')}</th><th>${t('bill.date')}</th><th>${t('bill.to')}</th><th class="r">${t('bill.th.qty')}</th><th class="r">${t('bill.grand')}</th><th>${t('t.type')}</th><th></th></tr></thead><tbody>${H.map(x => `<tr class="bill-row ${x.id === b.id ? 'cur' : ''}" data-brow="${x.id}" title="${esc(x.no)}"><td class="mono">${x.issuedAt || x.status === 'draft' ? `<b>${esc(x.no)}</b>` : `<span class="muted" title="${esc(t('bill.noNoT'))}">${t('bill.noNo')}</span>`}</td><td>${fmtDate(fromYmd(x.date))}</td><td>${x.noCustomer ? t('bill.walkin') : esc(x.customer.name || '—')}</td><td class="r">${t('bill.items', { n: x.lines.length })}</td><td class="r"><b>${fmtMoney(billTotals(x).grand)}</b></td><td><span class="chip ${x.status === 'issued' ? 'badge-in' : x.status === 'cancelled' ? 'badge-empty' : 'badge-violet'}">${t('bill.status.' + x.status)}</span></td><td class="r"><div class="row-actions" style="justify-content:flex-end">${x.id !== b.id ? `<button class="btn btn-sm" data-hopen="${x.id}">${t('bill.open')}</button>` : ''}${x.status !== 'cancelled' && x.lines.length ? `<button class="icon-btn sm" data-hprint="${x.id}" title="${esc(t('bill.print'))}">${ic('printer', 'ico-sm')}</button>` : ''}${x.status !== 'cancelled' ? `<button class="icon-btn sm del" data-hcancel="${x.id}" title="${esc(t('bill.cancel'))}">${ic('trash', 'ico-sm')}</button>` : `<button class="icon-btn sm del" data-hdel="${x.id}" title="${esc(t('btn.delete'))}">${ic('x', 'ico-sm')}</button>`}</div></td></tr>`).join('')}</tbody></table></div>` : `<div class="empty-sm">${ic('bill')} ${t('bill.histNone')}</div>`;
   // ---- bindings ----
   f('bl-new').onclick = () => { if (!b.lines.length && !b.customer.name && b.status === 'draft') { toast(t('bill.alreadyNew')); return; } S.billId = newBill().id; renderBill(); scrollTo(0, 0); };
   f('bl-history').onclick = () => f('bill-history').scrollIntoView({ behavior: 'smooth', block: 'start' });
   $$('[data-hopen]', v).forEach(x => x.onclick = () => { S.billId = x.dataset.hopen; renderBill(); scrollTo({ top: 0, behavior: 'smooth' }); });
+  // the whole row opens that bill (buttons in the row keep their own action)
+  f('bl-hist').onclick = e => { if (e.target.closest('button,a,input')) return; const r = e.target.closest('tr[data-brow]'); if (!r) return;
+    if (r.dataset.brow === b.id) { scrollTo({ top: 0, behavior: 'smooth' }); return; }
+    S.billId = r.dataset.brow; renderBill(); scrollTo({ top: 0, behavior: 'smooth' }); };
   $$('[data-hprint]', v).forEach(x => x.onclick = () => openBillPreview(DB.bills.find(y => y.id === x.dataset.hprint)));
   $$('[data-hcancel]', v).forEach(x => x.onclick = () => cancelBillFlow(DB.bills.find(y => y.id === x.dataset.hcancel)));
   $$('[data-hdel]', v).forEach(x => x.onclick = () => { DB.bills = DB.bills.filter(y => y.id !== x.dataset.hdel); commit(); renderBill(true); });
