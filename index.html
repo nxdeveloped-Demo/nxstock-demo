@@ -1037,6 +1037,7 @@ body.model-drag *{cursor:grabbing!important}
 #view-stock .fg-qty>.field{grid-column:span 2}
 #view-stock .fg-qty>.field:nth-child(2){order:5;grid-column:span 3}
 #view-stock .fg-qty>.field.full{order:6;grid-column:span 3}
+#view-stock .fg-qty>.field.exp-f{order:4;grid-column:span 3}
 #view-stock .fg-qty .field>label em,#view-stock .fg-qty .field>.flabel em{display:none}
 }
 
@@ -1917,6 +1918,387 @@ tr.tx-link:active td{background:color-mix(in srgb,var(--accent) 15%,transparent)
 #bill-history tr.bill-row{cursor:pointer;transition:background .2s}
 #bill-history tr.bill-row:hover td{background:color-mix(in srgb,var(--accent) 9%,transparent)}
 #bill-history tr.bill-row:hover td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
+/* ================= STOCK UPDATE ================= */
+.btn-su{--g1:#7C5CFF;--g2:#3FA9FF;--g3:#2BD9A0;overflow:hidden;isolation:isolate;height:50px;padding:0 20px 0 7px;gap:11px;color:#fff;background:linear-gradient(110deg,var(--g1),var(--g2) 45%,var(--g3) 90%,var(--g1));background-size:240% 100%;animation:suFlow 5s linear infinite;box-shadow:0 14px 34px -14px rgba(90,120,255,.9),inset 0 1px 0 rgba(255,255,255,.45),inset 0 -2px 0 rgba(0,0,0,.18);-webkit-backdrop-filter:none;backdrop-filter:none}
+.btn-su::before{display:none}
+.btn-su .su-ic{display:grid;place-items:center;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.22);box-shadow:inset 0 0 0 1px rgba(255,255,255,.4)}
+.btn-su .su-ic .ico{width:20px;height:20px;animation:suTick 2.6s ease-in-out infinite}
+.btn-su .su-tx{display:flex;flex-direction:column;align-items:flex-start;line-height:1.1}
+.btn-su .su-tx b{font-size:14.5px;font-weight:800;letter-spacing:.01em}
+.btn-su .su-tx small{font-size:10.5px;font-weight:600;opacity:.85;letter-spacing:.04em;text-transform:uppercase}
+.btn-su .su-shine{position:absolute;inset:0;z-index:-1;background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.55) 48%,transparent 62%);transform:translateX(-120%);animation:suShine 3.2s cubic-bezier(.5,0,.3,1) infinite}
+.btn-su:hover{transform:translateY(-2px) scale(1.04);box-shadow:0 20px 44px -14px rgba(90,120,255,1),inset 0 1px 0 rgba(255,255,255,.5)}
+.btn-su:active{transform:scale(.96)}
+.btn-su.on{animation:none;background:var(--glass-3);color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--accent),0 10px 26px -14px rgba(0,0,0,.6)}
+.btn-su.on .su-ic{background:var(--glass-3);box-shadow:none}
+.btn-su.on .su-ic .ico{animation:none}
+.btn-su.sm{height:40px;padding:0 15px 0 5px;gap:8px}
+.btn-su.sm .su-ic{width:30px;height:30px}.btn-su.sm .su-ic .ico{width:16px;height:16px}
+.btn-su.sm .su-tx b{font-size:13px}
+@keyframes suFlow{to{background-position:-240% 0}}
+@keyframes suShine{0%,35%{transform:translateX(-120%)}75%,100%{transform:translateX(120%)}}
+@keyframes suTick{0%,70%,100%{transform:none}80%{transform:rotate(-12deg) scale(1.12)}90%{transform:rotate(8deg) scale(1.05)}}
+#ls-rows.su-out{animation:suOut .23s ease-in forwards}
+#ls-rows.su-in{animation:suIn .7s cubic-bezier(.16,1,.3,1)}
+@keyframes suOut{to{opacity:0;transform:scale(.97) translateY(8px);filter:blur(4px)}}
+@keyframes suIn{from{opacity:0;transform:scale(1.02) translateY(-6px);filter:blur(5px)}}
+.su-split{display:grid;min-width:0;grid-template-columns:minmax(0,1fr) minmax(340px,430px);gap:18px;align-items:start}
+.su-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 4px 12px;color:var(--ink-2)}
+.su-head b{color:var(--ink);font-size:15px}.su-head small{color:var(--ink-3)}
+.su-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(212px,1fr));gap:12px}
+.su-card{position:relative;display:flex;flex-direction:column;gap:10px;padding:13px;border-radius:20px;background:var(--glass);box-shadow:inset 0 0 0 1px var(--hair),0 10px 24px -16px rgba(0,0,0,.7);cursor:pointer;transition:transform .45s cubic-bezier(.16,1,.3,1),box-shadow .3s;animation:suCardIn .55s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(min(var(--k),18) * 28ms)}
+@keyframes suCardIn{from{opacity:0;transform:translateY(14px) scale(.96)}}
+.su-card::before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:4px;border-radius:0 4px 4px 0;background:var(--alc,transparent)}
+.su-card:hover{transform:translateY(-3px);box-shadow:inset 0 0 0 1px var(--glass-4),0 18px 34px -18px rgba(0,0,0,.8)}
+.su-card.sel{box-shadow:inset 0 0 0 2px var(--accent),0 0 0 4px color-mix(in srgb,var(--accent) 22%,transparent),0 18px 40px -18px color-mix(in srgb,var(--accent) 70%,transparent);transform:translateY(-3px)}
+.su-card.flash{animation:suFlash 1.3s ease}
+@keyframes suFlash{0%{box-shadow:0 0 0 0 rgba(67,217,166,.9),inset 0 0 0 2px #43D9A6}100%{box-shadow:0 0 0 18px rgba(67,217,166,0),inset 0 0 0 2px transparent}}
+.suc-top{display:flex;align-items:center;gap:9px;min-width:0}
+.suc-name{display:block;font-size:14.5px;line-height:1.25;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.suc-top small{display:block;color:var(--ink-3);font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.suc-mid{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.suc-amt{display:flex;flex-direction:column;gap:2px;min-width:0}
+.suc-l{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);font-weight:700}
+.suc-amt>div{display:flex;align-items:baseline;gap:5px}
+.suc-amt b{font-size:30px;font-weight:800;line-height:1;letter-spacing:-.02em}
+.suc-amt>div small{color:var(--ink-3);font-size:12px}
+.suc-prev{display:inline-flex;align-items:center;gap:4px;height:0;opacity:0;overflow:hidden;font-size:13px;color:var(--rc);transition:all .35s cubic-bezier(.16,1,.3,1)}
+.suc-prev.on{height:22px;opacity:1}
+.suc-prev b{font-size:15px}.suc-prev em{font-style:normal;font-weight:700;padding:1px 6px;border-radius:8px;background:color-mix(in srgb,var(--rc) 18%,transparent)}
+.suc-qr{width:64px;height:64px;border-radius:10px;background:#fff;padding:4px;flex:none;image-rendering:pixelated}
+.suc-foot{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.suc-go{background:linear-gradient(120deg,#7C5CFF,#3FA9FF);color:#fff;-webkit-backdrop-filter:none;backdrop-filter:none;height:34px;padding:0 13px}
+.suc-go::before{display:none}
+.su-card.sel .suc-go{background:linear-gradient(120deg,#2BD9A0,#3FA9FF)}
+.su-right{position:sticky;top:86px;max-height:calc(100vh - 104px);overflow:auto;padding:18px;border-radius:26px;background:var(--glass);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);box-shadow:inset 0 0 0 1px var(--hair),inset 0 2px 0 color-mix(in srgb,var(--rc,var(--accent)) 70%,transparent),0 30px 60px -30px rgba(0,0,0,.85),0 0 60px -30px var(--rc,var(--accent));transition:box-shadow .4s}
+.su-right.pop{animation:suPop .5s cubic-bezier(.16,1,.3,1)}
+@keyframes suPop{from{opacity:.3;transform:translateX(18px) scale(.98)}}
+.sup-empty{text-align:center;padding:16px 6px 8px}
+.sup-ill{position:relative;width:86px;height:86px;margin:4px auto 14px;display:grid;place-items:center;border-radius:28px;background:linear-gradient(135deg,#7C5CFF,#3FA9FF 55%,#2BD9A0);color:#fff;box-shadow:0 20px 40px -18px #3FA9FF}
+.sup-ill .ico{width:40px;height:40px;animation:suTick 2.6s ease-in-out infinite}
+.sup-ill i{position:absolute;inset:-8px;border-radius:34px;border:2px solid color-mix(in srgb,#3FA9FF 50%,transparent);animation:suRing 2.4s ease-out infinite}
+.sup-ill i+i{animation-delay:1.2s}
+@keyframes suRing{from{opacity:.9;transform:scale(.9)}to{opacity:0;transform:scale(1.35)}}
+.sup-empty h3{margin:0 0 6px;font-size:18px}.sup-empty p{margin:0 auto;color:var(--ink-2);font-size:13.5px;max-width:300px;line-height:1.5}
+.sup-legend{display:flex;justify-content:center;flex-wrap:wrap;gap:6px;margin-top:14px}
+.sup-legend span{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:99px;font-size:12px;font-weight:700;color:var(--rc);background:color-mix(in srgb,var(--rc) 14%,transparent)}
+.sup-head{display:flex;align-items:center;gap:11px;padding-bottom:12px;border-bottom:1px solid var(--hair)}
+.sup-head .min0{flex:1}.sup-head b{display:block;font-size:16px;line-height:1.25}.sup-head small{color:var(--ink-3);font-size:12px}
+.sup-qr{width:52px;height:52px;border-radius:9px;background:#fff;padding:3px;image-rendering:pixelated}
+.sup-now{display:flex;align-items:baseline;flex-wrap:wrap;gap:8px;margin:14px 0 6px;padding:12px 14px;border-radius:16px;background:var(--glass-2)}
+.sup-now>span:first-child{font-size:12px;color:var(--ink-3);font-weight:700;text-transform:uppercase;letter-spacing:.05em;flex-basis:100%}
+.sup-now b{font-size:36px;font-weight:800;line-height:1;letter-spacing:-.02em}.sup-now small{color:var(--ink-3)}
+.sup-step{display:flex;align-items:center;gap:9px;margin:16px 0 9px;font-weight:800;font-size:14px;transition:opacity .3s}
+.sup-step span{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;font-size:12px;background:var(--rc,var(--accent));color:#fff}
+.sup-step.dim,.sup-qty.dim,.sup-note.dim{opacity:.45;pointer-events:none}
+.sup-reasons{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.sur{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:5px;padding:13px 7px 11px;border-radius:18px;border:0;background:var(--glass-2);color:var(--ink);cursor:pointer;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--rc) 30%,transparent);transition:transform .35s cubic-bezier(.2,.9,.3,1.3),box-shadow .3s,background .3s;font:inherit}
+.sur:hover{transform:translateY(-3px);background:color-mix(in srgb,var(--rc) 10%,transparent)}
+.sur-ic{display:grid;place-items:center;width:42px;height:42px;border-radius:14px;color:var(--rc);background:color-mix(in srgb,var(--rc) 16%,transparent);transition:all .3s}
+.sur b{font-size:14px}.sur small{font-size:10.5px;color:var(--ink-3);line-height:1.3}
+.sur.on{background:color-mix(in srgb,var(--rc) 18%,transparent);box-shadow:inset 0 0 0 2px var(--rc),0 12px 26px -14px var(--rc);transform:translateY(-2px)}
+.sur.on .sur-ic{background:var(--rc);color:#fff;box-shadow:0 0 18px -2px var(--rc)}
+.sur.on::after{content:"✓";position:absolute;top:7px;right:9px;width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:900;background:var(--rc);color:#fff}
+.sup-qty{display:flex;align-items:center;gap:12px;flex-wrap:wrap;transition:opacity .3s}
+.sup-qty .stepper{max-width:190px}
+.sup-max{color:var(--ink-3);font-size:13px}
+.sup-lots{margin-top:10px;padding:10px;border-radius:14px;background:color-mix(in srgb,#FF3B5C 8%,transparent);display:flex;flex-direction:column;gap:5px;font-size:12.5px}
+.sup-lots>div{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:4px 6px;border-radius:8px}
+.sup-lots>div.past{color:#FF3B5C;background:color-mix(in srgb,#FF3B5C 12%,transparent);font-weight:700}
+.sup-lots p{margin:0;color:var(--ink-3)}
+.sup-lots .btn{align-self:flex-start;margin-top:4px}
+.sup-note{margin-top:12px;transition:opacity .3s}
+.sup-ba{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;margin:14px 0 12px;padding:13px;border-radius:18px;background:var(--glass-2)}
+.ba{display:flex;flex-direction:column;align-items:center;gap:2px}
+.ba span{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3)}
+.ba b{font-size:28px;font-weight:800;line-height:1.05}
+.ba.after b{color:var(--rc,var(--accent));text-shadow:0 0 18px color-mix(in srgb,var(--rc,var(--accent)) 50%,transparent)}
+.ba.after.bad b{color:var(--danger)}
+.ba-mid{display:flex;flex-direction:column;align-items:center;color:var(--rc,var(--accent))}
+.ba-mid em{font-style:normal;font-weight:800;font-size:13px}
+.ba-bar{grid-column:1/-1;display:flex;height:8px;border-radius:9px;overflow:hidden;background:var(--glass-3)}
+.ba-bar i{display:block;height:100%;background:linear-gradient(90deg,#3FA9FF,#2BD9A0);transition:width .5s cubic-bezier(.16,1,.3,1)}
+.ba-bar i.lost{background:repeating-linear-gradient(45deg,var(--rc,var(--danger)) 0 6px,color-mix(in srgb,var(--rc,var(--danger)) 55%,transparent) 6px 12px)}
+.ba-loss{grid-column:1/-1;text-align:center;font-size:13px;color:var(--ink-2)}
+.ba-loss b{color:var(--danger)}
+.su-confirm{background:var(--glass-3);color:var(--ink-3);transition:all .35s}
+.su-confirm.ready{color:#fff;background:linear-gradient(110deg,var(--rc),color-mix(in srgb,var(--rc) 55%,#7C5CFF));box-shadow:0 16px 34px -14px var(--rc)}
+.su-confirm.ready:hover{transform:translateY(-2px) scale(1.02)}
+.su-confirm:disabled{cursor:not-allowed}
+.sup-hist{margin-top:18px}
+.sup-hist h4{display:flex;align-items:center;gap:7px;margin:0 0 8px;font-size:13.5px;color:var(--ink-2)}
+.sur-row{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:14px;background:var(--glass-2);margin-bottom:6px;box-shadow:inset 3px 0 0 var(--rc)}
+.sur-row.tx-link{cursor:pointer;transition:transform .3s,background .3s}.sur-row.tx-link:hover{transform:translateX(3px);background:var(--glass-3)}
+.sur-row .min0{flex:1}.sur-row b{display:block;font-size:13.5px}.sur-row small{color:var(--ink-3);font-size:11.5px}
+.sur-i{display:grid;place-items:center;width:32px;height:32px;border-radius:10px;color:var(--rc);background:color-mix(in srgb,var(--rc) 15%,transparent);flex:none}
+.sur-q{display:flex;flex-direction:column;align-items:flex-end;font-weight:800;color:var(--rc)}
+.sur-q small{font-weight:600;color:var(--ink-3)}
+.adj-chip{color:var(--rc);background:color-mix(in srgb,var(--rc) 15%,transparent)!important}
+.exp-chip{color:var(--alc);background:color-mix(in srgb,var(--alc) 15%,transparent)!important;font-weight:700}
+.exp-tag{display:inline-block;padding:1px 7px;border-radius:7px;font-size:11px;font-weight:700;color:#FFA62B;background:rgba(255,166,43,.14)}
+.exp-tag.past{color:#FF3B5C;background:rgba(255,59,92,.14)}
+.row.al{background-image:linear-gradient(90deg,color-mix(in srgb,var(--alc) 13%,transparent),transparent 34%);box-shadow:inset 4px 0 0 var(--alc)}
+.row.blink,.su-card.blink{animation:ncBlink .7s ease-in-out 6}
+@keyframes ncBlink{0%,100%{box-shadow:inset 0 0 0 2px var(--blc),0 0 0 0 transparent}50%{box-shadow:inset 0 0 0 3px var(--blc),0 0 0 6px color-mix(in srgb,var(--blc) 30%,transparent),0 0 34px 4px color-mix(in srgb,var(--blc) 60%,transparent)}}
+.warn-in{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.warn-in .input{width:86px;flex:none}
+.warn-in>span{color:var(--ink-3);font-size:13px}
+.warn-chips{display:flex;gap:5px}
+.warn-chips .chip{cursor:pointer;border:0;font:inherit;font-size:12px;font-weight:700;padding:5px 10px;transition:all .25s}
+.warn-chips .chip.on{background:#FFA62B;color:#1a1000}
+.warn-h{display:block;margin-top:5px;color:var(--ink-3);font-size:12px}
+.field.dim .warn-in{opacity:.5}
+.lb-exp{font-weight:800}
+@media(max-width:1180px){.su-split{grid-template-columns:minmax(0,1fr) 340px}}
+@media(max-width:980px){.su-split{grid-template-columns:minmax(0,1fr)}.su-right{position:relative;top:0;max-height:none;order:-1}}
+@media(max-width:520px){.su-right{padding:14px}.sur small{display:none}.sup-qr{width:42px;height:42px}.su-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.su-card{padding:10px}.suc-qr{width:48px;height:48px}.suc-amt b{font-size:24px}.btn-su .su-tx small{display:none}}
+/* ================= NOTIFICATION CENTRE ================= */
+.nc{position:fixed;left:0;top:0;z-index:65;--ncc:var(--mint);transform:translate(calc(100vw - 72px),calc(100vh - 150px))}
+.nc.snap{transition:transform .6s cubic-bezier(.34,1.56,.64,1)}
+.nc-btn{position:relative;width:58px;height:58px;border-radius:50%;border:0;display:grid;place-items:center;cursor:grab;touch-action:none;color:#fff;background:radial-gradient(circle at 32% 28%,color-mix(in srgb,var(--ncc) 70%,#fff),var(--ncc) 55%,color-mix(in srgb,var(--ncc) 60%,#000));box-shadow:0 14px 30px -10px var(--ncc),inset 0 2px 0 rgba(255,255,255,.45),inset 0 -3px 0 rgba(0,0,0,.2);transition:transform .35s cubic-bezier(.2,.9,.3,1.4),box-shadow .3s}
+.nc-btn:hover{transform:scale(1.08)}
+.nc.dragging .nc-btn{cursor:grabbing;transform:scale(1.15);box-shadow:0 26px 50px -12px var(--ncc)}
+.nc-bell .ico{width:26px;height:26px}
+.nc.has .nc-bell{animation:ncRing 3.5s ease-in-out infinite;transform-origin:50% 4px}
+@keyframes ncRing{0%,78%,100%{transform:none}82%{transform:rotate(16deg)}86%{transform:rotate(-14deg)}90%{transform:rotate(9deg)}94%{transform:rotate(-5deg)}}
+.nc-ring{position:absolute;inset:0;border-radius:50%;pointer-events:none}
+.nc.has .nc-ring{border:2px solid var(--ncc);animation:ncPulse 2s ease-out infinite;will-change:transform,opacity}
+@keyframes ncPulse{from{transform:scale(1);opacity:.75}to{transform:scale(1.65);opacity:0}}
+.nc-badge{position:absolute;top:-3px;right:-3px;min-width:22px;height:22px;padding:0 6px;border-radius:12px;display:grid;place-items:center;font-size:11.5px;font-weight:800;background:#fff;color:#111;box-shadow:0 4px 10px rgba(0,0,0,.35),0 0 0 2px var(--ncc)}
+.nc-badge:empty{display:none}
+.nc-panel{position:absolute;width:min(370px,calc(100vw - 28px));max-height:min(560px,calc(100vh - 120px));display:flex;flex-direction:column;border-radius:24px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line-2),inset 0 2px 0 var(--ncc),var(--shadow-lg);opacity:0;pointer-events:none;transform:scale(.6);transition:opacity .25s,transform .45s cubic-bezier(.34,1.56,.64,1);overflow:hidden;bottom:0;right:70px;transform-origin:100% 100%}
+.nc:not(.lower) .nc-panel{bottom:auto;top:0;transform-origin:100% 0}
+.nc:not(.righter) .nc-panel{right:auto;left:70px;transform-origin:0 100%}
+.nc:not(.righter):not(.lower) .nc-panel{transform-origin:0 0}
+.nc[data-side=t] .nc-panel,.nc[data-side=b] .nc-panel{right:auto;left:50%;margin-left:min(-185px,calc(-50vw + 14px))}
+.nc[data-side=t] .nc-panel{top:70px;bottom:auto;transform-origin:50% 0}
+.nc[data-side=b] .nc-panel{bottom:70px;top:auto;transform-origin:50% 100%}
+.nc[data-side=b].righter .nc-panel,.nc[data-side=t].righter .nc-panel{left:auto;right:0;margin-left:0}
+.nc[data-side=b]:not(.righter) .nc-panel,.nc[data-side=t]:not(.righter) .nc-panel{left:0;margin-left:0}
+.nc.open .nc-panel{opacity:1;pointer-events:auto;transform:none}
+.nc-h{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:15px 16px 10px}
+.nc-h b{display:flex;align-items:center;gap:7px;font-size:16px}.nc-h small{color:var(--ink-3);font-size:11.5px}
+.nc-f{display:flex;flex-wrap:wrap;gap:6px;padding:0 14px 10px}
+.lb-ic{display:inline-flex;align-items:center;gap:5px}
+.nc-f::-webkit-scrollbar{display:none}
+.nc-f button{flex:none;display:inline-flex;align-items:center;gap:5px;padding:6px 10px;border-radius:99px;border:0;background:var(--glass-2);color:var(--ink-2);font:inherit;font-size:12px;font-weight:700;cursor:pointer;transition:all .25s}
+.nc-f button i{font-style:normal;min-width:18px;padding:0 5px;border-radius:9px;background:var(--glass-3);font-size:11px}
+.nc-f .dot{width:8px;height:8px;border-radius:50%;background:var(--c)}
+.nc-f button.on{background:var(--c,var(--accent));color:#fff}
+.nc-f button.on i{background:rgba(0,0,0,.2)}
+.nc-list{flex:1;overflow:auto;padding:2px 10px 8px;display:flex;flex-direction:column;gap:6px}
+.nc-it{display:flex;align-items:center;gap:11px;width:100%;text-align:left;padding:10px 11px;border-radius:16px;border:0;background:color-mix(in srgb,var(--c) 9%,var(--glass-2));color:var(--ink);font:inherit;cursor:pointer;box-shadow:inset 3px 0 0 var(--c);animation:ncIn .4s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(min(var(--i),12) * 30ms);transition:transform .3s,background .3s}
+.nc-it:hover{transform:translateX(4px);background:color-mix(in srgb,var(--c) 18%,var(--glass-2))}
+@keyframes ncIn{from{opacity:0;transform:translateY(8px)}}
+.nc-it .min0{flex:1;display:flex;flex-direction:column}
+.nc-it small{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--c)}
+.nc-it b{font-size:13.5px;line-height:1.3}
+.nc-it em{font-style:normal;font-size:12px;color:var(--ink-3)}
+.nc-ic{display:grid;place-items:center;width:34px;height:34px;flex:none;border-radius:11px;background:var(--c);color:#fff;box-shadow:0 6px 14px -6px var(--c)}
+.nc-empty{display:flex;flex-direction:column;align-items:center;gap:8px;padding:28px 10px;color:var(--ink-3);text-align:center}
+.nc-empty .ico{width:34px;height:34px;color:var(--mint)}
+.nc-w{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 14px 14px;border-top:1px solid var(--hair);font-size:12.5px;color:var(--ink-2)}
+.nc-w>span{display:inline-flex;align-items:center;gap:5px;font-weight:700}
+.nc-wi{display:flex;align-items:center;border-radius:12px;background:var(--glass-2);overflow:hidden}
+.nc-wi button{width:28px;height:32px;border:0;background:none;color:var(--ink);font-size:16px;cursor:pointer}
+.nc-wi .input{width:52px;height:32px;padding:0 4px;text-align:center;border-radius:0;background:none;box-shadow:none}
+.nc-w small{color:var(--ink-3)}
+.nc-w .btn{margin-left:auto;height:32px}
+body.locked .nc,body.printing .nc{display:none}
+@media print{.nc{display:none!important}}
+/* ================= LOSS SECTION ================= */
+.loss-card{position:relative;overflow:hidden}
+.ls-hero{display:grid;grid-template-columns:minmax(240px,.9fr) 1.4fr;gap:18px;align-items:stretch}
+.ls-total{position:relative;display:flex;flex-direction:column;gap:6px;padding:18px;border-radius:20px;background:linear-gradient(140deg,rgba(255,59,92,.2),rgba(255,138,61,.1) 60%,transparent);box-shadow:inset 0 0 0 1px rgba(255,59,92,.28)}
+.ls-k{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#FF6A7E}
+.ls-big{font-size:clamp(30px,3.4vw,42px);font-weight:800;line-height:1.05;letter-spacing:-.02em;color:#FF4D6A;text-shadow:0 0 26px rgba(255,59,92,.45)}
+.ls-sub{font-size:12.5px;color:var(--ink-2)}
+.ls-mini{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:auto;padding-top:10px;border-top:1px dashed rgba(255,59,92,.3)}
+.ls-mini div{display:flex;flex-direction:column}.ls-mini small{font-size:11px;color:var(--ink-3)}.ls-mini b{font-size:15px}
+.ls-tiles{display:flex;flex-direction:column;gap:9px;justify-content:center}
+.ls-tile{display:grid;grid-template-columns:auto minmax(0,1fr) 110px 48px;gap:12px;align-items:center;padding:11px 13px;border-radius:16px;background:var(--glass-2);box-shadow:inset 3px 0 0 var(--rc)}
+.ls-ic{display:grid;place-items:center;width:36px;height:36px;border-radius:12px;background:color-mix(in srgb,var(--rc) 18%,transparent);color:var(--rc)}
+.ls-tile small{display:block;font-size:12px;font-weight:700;color:var(--rc)}
+.ls-tile b{display:block;font-size:17px}
+.ls-tile em{display:block;font-style:normal;font-size:11.5px;color:var(--ink-3)}
+.ls-pc{height:8px;border-radius:8px;background:var(--glass-3);overflow:hidden}
+.ls-pc i{display:block;height:100%;border-radius:8px;background:var(--rc);box-shadow:0 0 10px var(--rc);animation:lsGrow 1s cubic-bezier(.16,1,.3,1) both}
+@keyframes lsGrow{from{width:0}}
+.ls-pcn{font-size:12.5px;font-weight:800;text-align:right}
+.ls-top .rank small{display:flex;flex-wrap:wrap;gap:5px;margin-top:3px}
+.ls-rc{display:inline-flex;align-items:center;gap:3px;padding:1px 7px;border-radius:8px;font-size:11px;font-weight:700;color:var(--rc);background:color-mix(in srgb,var(--rc) 14%,transparent)}
+.ls-rep{display:inline-flex;align-items:center;gap:3px;padding:1px 7px;border-radius:8px;font-size:11px;font-weight:800;color:#fff;background:linear-gradient(90deg,#FF3B5C,#FF8A3D)}
+.ls-grid{margin-top:16px}
+.ls-h4{margin:0 0 8px;font-size:13.5px;color:var(--ink-2)}
+.chart-box.sm{height:220px}
+.ls-head .btn-su{margin-top:10px}
+.sec-head .btn-su span{display:grid;font-size:inherit;letter-spacing:normal;text-transform:none;color:inherit}
+.sec-head .btn-su .su-tx{display:flex}.sec-head .btn-su .su-tx b{font-size:13px}
+.ls-g2 .ls-top{max-height:262px;overflow:auto}
+.ls-g2 .ls-top .rank{padding-top:6px;padding-bottom:6px}
+.ls-recent{max-height:330px;overflow:auto}
+.istat.loss b{color:#FF4D6A}
+@media(max-width:900px){.ls-hero{grid-template-columns:1fr}.ls-tile{grid-template-columns:auto minmax(0,1fr) 70px 44px}}
+:root[data-theme="light"] .su-card,:root[data-theme="light"] .su-right{background:rgba(255,255,255,.78)}
+:root[data-theme="light"] .nc-panel{background:#fff}
+:root[data-theme="light"] .ls-big{text-shadow:none}
+/* ===== status chips ===== */
+.st-chips{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin:-6px 0 16px}
+.st-l{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--ink-3);margin-right:2px}
+.st-chip{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 12px;border-radius:99px;border:0;font:inherit;font-size:12.5px;font-weight:700;color:var(--ink-2);background:var(--glass-2);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--c) 30%,transparent);cursor:pointer;transition:transform .3s cubic-bezier(.2,.9,.3,1.4),background .25s,color .25s,box-shadow .25s}
+.st-chip .ico{color:var(--c)}
+.st-chip i{font-style:normal;min-width:20px;height:20px;padding:0 6px;display:grid;place-items:center;border-radius:10px;font-size:11px;background:color-mix(in srgb,var(--c) 18%,transparent);color:var(--c)}
+.st-chip:hover{transform:translateY(-2px);background:color-mix(in srgb,var(--c) 12%,var(--glass-2))}
+.st-chip.on{background:var(--c);color:#fff;box-shadow:0 10px 22px -10px var(--c)}
+.st-chip.on .ico{color:#fff}.st-chip.on i{background:rgba(0,0,0,.22);color:#fff}
+:root[data-theme="light"] .st-chip.on[data-st=low]{color:#2a2000}
+/* ===== paged catalogue ===== */
+.su-head{min-height:28px}
+.su-pg{margin-left:auto;font-size:12.5px;font-weight:700;color:var(--ink-2);padding:4px 11px;border-radius:99px;background:var(--glass-2)}
+.su-left{display:flex;flex-direction:column;min-width:0;min-height:0}
+.su-cat{position:relative;display:grid;grid-template-columns:44px minmax(0,1fr) 44px;gap:10px;align-items:center;flex:1;min-height:0}
+.su-view{position:relative;height:100%;min-height:0;overflow:hidden;padding:6px 4px;margin:-6px -4px}
+.su-grid{display:grid;gap:12px;height:100%;align-content:start}
+body.su-fit .su-grid{align-content:stretch}
+.su-grid.pg-next{animation:pgNext .55s cubic-bezier(.16,1,.3,1)}
+.su-grid.pg-prev{animation:pgPrev .55s cubic-bezier(.16,1,.3,1)}
+.su-grid.bump{animation:pgBump .4s ease}
+@keyframes pgNext{from{opacity:0;transform:translateX(60px)}}
+@keyframes pgPrev{from{opacity:0;transform:translateX(-60px)}}
+@keyframes pgBump{30%{transform:translateX(-8px)}60%{transform:translateX(6px)}}
+.su-grid.pg-next .su-card,.su-grid.pg-prev .su-card{animation:none}
+.su-none{grid-column:1/-1}
+.su-nav{display:grid;place-items:center;width:44px;height:96px;border-radius:22px;border:0;cursor:pointer;color:#fff;background:linear-gradient(160deg,#7C5CFF,#3FA9FF);box-shadow:0 14px 30px -14px #3FA9FF,inset 0 1px 0 rgba(255,255,255,.4);transition:transform .35s cubic-bezier(.2,.9,.3,1.4),opacity .3s,box-shadow .3s}
+.su-nav .ico{width:24px;height:24px}
+.su-nav:hover{transform:scale(1.08)}
+.su-nav.prev:hover .ico{animation:navL .8s ease-in-out infinite}.su-nav.next:hover .ico{animation:navR .8s ease-in-out infinite}
+@keyframes navL{50%{transform:translateX(-4px)}}@keyframes navR{50%{transform:translateX(4px)}}
+.su-nav:active{transform:scale(.94)}
+.su-nav:disabled{opacity:.28;cursor:default;transform:none;box-shadow:none;filter:grayscale(.6)}
+.su-dots{display:flex;justify-content:center;gap:7px;min-height:22px;padding-top:10px}
+.su-dots button{width:9px;height:9px;padding:0;border-radius:9px;border:0;background:var(--glass-4);cursor:pointer;transition:all .35s cubic-bezier(.2,.9,.3,1.3)}
+.su-dots button.on{width:28px;background:linear-gradient(90deg,#7C5CFF,#3FA9FF)}
+.su-card{min-height:0;justify-content:space-between;overflow:hidden}
+/* fit the window on desktop: nothing scrolls except the right panel */
+body.su-fit .su-split{align-items:stretch;min-height:0}
+body.su-fit .su-right{position:relative;top:0;max-height:none;height:100%;overscroll-behavior:contain}
+body.su-fit #view-list .page-head{margin:0 0 14px;align-items:center}
+body.su-fit #view-list .page-head h2{font-size:clamp(28px,3vw,38px);margin-top:6px}
+body.su-fit #view-list .page-head .eyebrow{display:none}
+body.su-fit #view-list .toolbar{margin-bottom:10px}
+body.su-fit #view-list .st-chips{margin:-2px 0 12px}
+body.su-fit .wrap{padding-bottom:0}
+body.su-fit .foot,body.su-fit .credit-foot{display:none}
+body.su-fit .suc-qr{width:clamp(54px,6vh,74px);height:clamp(54px,6vh,74px)}
+@media(max-width:620px){.su-cat{grid-template-columns:34px minmax(0,1fr) 34px;gap:6px}.su-nav{width:34px;height:70px;border-radius:17px}.su-head small{display:none}}
+/* ===== expiry hover card ===== */
+.exp-tip{position:fixed;z-index:90;width:290px;padding:12px;border-radius:18px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line-2),inset 0 2px 0 #FFA62B,var(--shadow-lg);pointer-events:none;opacity:0;transform:translateY(6px) scale(.97);transition:opacity .2s,transform .3s cubic-bezier(.16,1,.3,1)}
+.exp-tip.on{opacity:1;transform:none}
+.et-h{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.et-h b{font-size:13.5px}.et-h small{flex-basis:100%;color:var(--ink-3);font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.et-r{display:grid;grid-template-columns:1fr auto;gap:1px 10px;align-items:center;padding:7px 9px;margin-bottom:5px;border-radius:11px;background:var(--glass-2);box-shadow:inset 3px 0 0 var(--ec,#43D9A6)}
+.et-r.soon{--ec:#FFA62B}.et-r.past{--ec:#FF3B5C}.et-r.none{--ec:var(--ink-3)}
+.et-d{font-weight:800;font-size:13px}
+.et-r b{grid-row:span 2;text-align:right;font-size:16px}.et-r b small{font-size:11px;color:var(--ink-3);font-weight:600}
+.et-b{font-size:11.5px;font-weight:700;color:var(--ec)}
+.et-r em{grid-column:1/-1;font-style:normal;font-size:10.5px;color:var(--ink-3)}
+.et-f{display:flex;justify-content:space-between;align-items:center;padding:8px 4px 0;margin-top:4px;border-top:1px dashed var(--line-2);font-size:12.5px;color:var(--ink-2)}
+.et-empty{padding:10px;text-align:center;color:var(--ink-3);font-size:12.5px}
+:root[data-theme="light"] .exp-tip{background:#fff}
+.sup-exps{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin:2px 0 4px;font-size:12px}
+.sup-exps>span{display:inline-flex;align-items:center;gap:4px;font-weight:700;color:var(--ink-3);margin-right:2px}
+.sup-exps em{font-style:normal;padding:3px 9px;border-radius:9px;background:rgba(67,217,166,.13);color:#43D9A6;font-weight:600}
+.sup-exps em.soon{background:rgba(255,166,43,.15);color:#FFA62B}.sup-exps em.past{background:rgba(255,59,92,.14);color:#FF3B5C}
+.sup-exps em i{font-style:normal;opacity:.8}
+
+.suc-foot .chip{min-width:0;flex:0 1 auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;padding:4px 8px}
+.suc-foot .suc-go{flex:none;margin-left:auto}
+body.su-fit .wrap{max-width:min(1640px,100%)}
+.su-grid.compact .su-card{padding:10px 12px;gap:5px}
+.su-grid.compact .suc-qr{width:46px;height:46px}
+.su-grid.compact .suc-amt b{font-size:24px}
+.su-grid.compact .suc-l{display:none}
+.su-grid.compact .suc-name{-webkit-line-clamp:1}
+.su-grid.compact .suc-go{height:30px}
+
+/* ================= LIGHT MODE (slower computers): no blur, no glow loops, solid surfaces ================= */
+html.lite{--blur:none;--glass:rgba(24,27,33,.96);--glass-2:rgba(255,255,255,.06);--glass-3:rgba(255,255,255,.1);--shadow:0 10px 24px -14px rgba(0,0,0,.8);--shadow-lg:0 22px 46px -22px rgba(0,0,0,.9)}
+html.lite[data-theme="light"]{--glass:rgba(255,255,255,.97);--glass-2:rgba(246,248,250,.96);--glass-3:rgba(237,240,244,.98);--shadow:0 8px 20px -14px rgba(30,50,90,.35);--shadow-lg:0 18px 40px -22px rgba(30,50,90,.45)}
+html.lite *,html.lite *::before,html.lite *::after{-webkit-backdrop-filter:none!important;backdrop-filter:none!important;animation-iteration-count:1!important}
+html.lite :is(.blink,.scan-frame .laser,.cs-stage .laser,.spinner,.hs-radar,.hs-radar *,[class*="spin"]){animation-iteration-count:infinite!important}
+html.lite .nc-ring{display:none}
+html.lite .env{transform:none!important;will-change:auto;inset:0}
+html.lite :is(.card,.kpi,.tcard,.row)::after{display:none!important}
+html.lite .tilt{transform:none!important}
+html.lite .nav,html.lite .modal,html.lite .nc-panel,html.lite .toast,html.lite .combo-list,html.lite .picker,html.lite .su-right{background:var(--surface)!important}
+html.lite .modal-bg{background:rgba(0,0,0,.72)}html.lite[data-theme="light"] .modal-bg{background:rgba(200,208,220,.82)}
+html.lite .btn-su{animation:none}html.lite .btn-su .su-shine{display:none}
+html.lite .row,html.lite .su-card,html.lite .card,html.lite .kpi{transition-duration:.18s}
+.perf-seg{display:flex;width:100%}.perf-seg button{flex:1}
+.perf-h{display:block;margin-top:7px;color:var(--ink-3);font-size:12px;line-height:1.45}
+
+/* list buttons: the running gradient / neon border only runs on the row under the pointer (35 looping repaints otherwise) */
+.row:not(:hover):not(:focus-within) .row-actions :is(.btn,.icon-btn),.row:not(:hover):not(:focus-within) .row-actions :is(.btn,.icon-btn)::after{animation-play-state:paused}
+
+/* scan inside the search bar (Stock Update) */
+.search-scan{display:none;position:absolute;right:5px;top:50%;transform:translateY(-50%);height:36px;padding:0 14px 0 11px;border:0;border-radius:99px;align-items:center;gap:7px;overflow:hidden;cursor:pointer;font:inherit;font-size:12.5px;color:#fff;background:linear-gradient(110deg,#7C5CFF,#3FA9FF 60%,#2BD9A0);box-shadow:0 8px 18px -8px #3FA9FF;transition:transform .3s cubic-bezier(.2,.9,.3,1.4)}
+.search-scan:hover{transform:translateY(-50%) scale(1.06)}
+.search-scan i{position:absolute;left:0;right:0;top:0;height:2px;background:#fff;box-shadow:0 0 8px #fff;opacity:.85;animation:ssLaser 1.8s ease-in-out infinite}
+@keyframes ssLaser{0%,100%{transform:translateY(2px)}50%{transform:translateY(32px)}}
+#view-list.su-on .search-scan{display:inline-flex}
+#view-list.su-on .search .input{padding-right:118px;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--accent) 45%,transparent)}
+.search.shake{animation:shakeX .4s}
+@keyframes shakeX{20%{transform:translateX(-7px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+html.lite .search-scan i{display:none}
+@media(max-width:520px){.search-scan b{display:none}.search-scan{padding:0 11px}#view-list.su-on .search .input{padding-right:54px}}
+
+/* ================= ITEM PICTURES ================= */
+.avatar[data-av]{cursor:zoom-in;position:relative;transition:transform .35s cubic-bezier(.2,.9,.3,1.4),box-shadow .3s}
+.avatar[data-av]:hover{transform:scale(1.1);box-shadow:0 0 0 2px var(--accent),0 8px 18px -8px var(--accent)}
+.avatar.has-img{padding:0;overflow:hidden;background:#fff}
+.avatar.has-img img{width:100%;height:100%;object-fit:cover;display:block;border-radius:inherit}
+.pic-pop{position:fixed;z-index:95;width:268px;padding:12px;border-radius:24px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line-2),var(--shadow-lg);opacity:0;pointer-events:none;transform:scale(.55);transition:opacity .2s,transform .42s cubic-bezier(.34,1.56,.64,1)}
+.pic-pop.on{opacity:1;pointer-events:auto;transform:none}
+.pic-pop.pinned{box-shadow:inset 0 0 0 1.5px var(--accent),0 0 0 5px color-mix(in srgb,var(--accent) 18%,transparent),var(--shadow-lg)}
+.pic-pop.drop{box-shadow:inset 0 0 0 2px #2BD9A0,0 0 0 6px rgba(43,217,160,.2),var(--shadow-lg)}
+.pp-x{position:absolute;top:18px;right:18px;z-index:2;background:rgba(0,0,0,.55)!important;color:#fff!important}
+.pp-img{position:relative;width:100%;aspect-ratio:1;border-radius:16px;overflow:hidden;display:grid;place-items:center;background:#fff}
+.pp-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block;animation:ppIn .45s cubic-bezier(.16,1,.3,1)}
+@keyframes ppIn{from{opacity:0;transform:scale(1.08)}}
+.pp-img.none{align-content:center;gap:8px;background:linear-gradient(160deg,hsl(var(--h) 45% 26% / .9),hsl(var(--h) 40% 14% / .9));color:hsl(var(--h) 85% 84%);box-shadow:inset 0 0 0 2px hsl(var(--h) 60% 60% / .35)}
+.pp-img.none span{font-size:64px;font-weight:700;line-height:1}
+.pp-img.none small{font-size:12.5px;opacity:.85}
+.pic-pop.busy .pp-img::after{content:"";position:absolute;inset:0;background:rgba(0,0,0,.45) center/34px no-repeat;border-radius:inherit;animation:fade .2s}
+.pp-meta{padding:10px 4px 8px}
+.pp-meta b{display:block;font-size:14.5px;line-height:1.3}.pp-meta small{color:var(--ink-3);font-size:12px}
+.pp-act{display:flex;gap:7px}
+.pp-act .btn{flex:1;justify-content:center;height:36px;padding:0 10px}
+.pp-act .pp-rm{flex:0 0 auto;color:var(--danger)}
+.pp-hint{display:block;margin:8px 4px 2px;color:var(--ink-3);font-size:11px;line-height:1.4}
+:root[data-theme="light"] .pic-pop{background:#fff}
+
+.pp-choose{display:grid;grid-template-columns:1fr 1fr;gap:8px;animation:ppCh .4s cubic-bezier(.16,1,.3,1)}
+@keyframes ppCh{from{opacity:0;transform:translateY(8px)}}
+.pp-ch{display:flex;flex-direction:column;align-items:center;gap:4px;padding:13px 6px 11px;border:0;border-radius:16px;font:inherit;color:var(--ink);background:color-mix(in srgb,var(--c) 10%,var(--glass-2));box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--c) 40%,transparent);cursor:pointer;transition:transform .3s cubic-bezier(.2,.9,.3,1.4),background .25s,box-shadow .25s}
+.pp-ch span{display:grid;place-items:center;width:42px;height:42px;border-radius:14px;background:var(--c);color:#fff;box-shadow:0 8px 18px -8px var(--c)}
+.pp-ch b{font-size:13.5px}.pp-ch small{font-size:10.5px;color:var(--ink-3);text-align:center;line-height:1.3}
+.pp-ch:hover{transform:translateY(-3px);background:color-mix(in srgb,var(--c) 20%,var(--glass-2));box-shadow:inset 0 0 0 2px var(--c),0 12px 24px -14px var(--c)}
+.pp-ch:active{transform:scale(.96)}
+.pp-back{display:flex;align-items:center;justify-content:center;gap:4px;width:100%;margin-top:8px;padding:6px;border:0;background:none;color:var(--ink-3);font:inherit;font-size:12px;cursor:pointer;border-radius:10px}
+.pp-back:hover{color:var(--ink);background:var(--glass-2)}
+.pp-img.cam{background:#000}
+.pp-img.cam video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .3s}
+.pic-pop.live .pp-img.cam video{opacity:1}
+.pp-cam-msg{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:16px;text-align:center;color:#fff;font-size:12.5px}
+.pp-cam-msg[hidden]{display:none}
+.pp-cam-msg .ico{width:30px;height:30px;opacity:.8}.pp-cam-msg span{opacity:.75;line-height:1.4}
+.pp-spin{width:26px;height:26px;border-radius:50%;border:3px solid rgba(255,255,255,.25);border-top-color:#fff;animation:spin .8s linear infinite}
+.pp-flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+.pp-flash.go{animation:ppFlash .45s ease-out}
+@keyframes ppFlash{from{opacity:.95}to{opacity:0}}
+.pp-act .pp-ico{flex:0 0 auto;padding:0 10px}
+.pic-pop[data-mode=cam]{width:300px}
+@keyframes spin{to{transform:rotate(360deg)}}
 
 /* demo */
 .demo-pill{position:fixed;right:14px;bottom:12px;z-index:70;display:flex;flex-direction:column;align-items:flex-end;gap:2px;padding:8px 14px;border-radius:14px;background:linear-gradient(135deg,#FF4D6D,#FF8A3D);color:#fff;font-size:11.5px;line-height:1.25;box-shadow:0 10px 30px -10px rgba(255,90,90,.8);pointer-events:none}
@@ -2012,6 +2394,26 @@ const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).
 const alpha = (hex, a) => { hex = (hex || '#888888').replace('#', ''); if (hex.length === 3) hex = hex.split('').map(c => c + c).join(''); const n = parseInt(hex, 16); return `rgba(${n >> 16 & 255},${n >> 8 & 255},${n & 255},${a})`; };
 const sameDay = (a, b) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
+const Perf = (() => {
+  let pref = 'auto'; try { pref = localStorage.getItem('nxstock.perf') || 'auto'; } catch (e) {}
+  if (!['auto', 'lite', 'full'].includes(pref)) pref = 'auto';
+  const weak = (navigator.hardwareConcurrency || 8) <= 4 || (navigator.deviceMemory || 8) <= 4;
+  let lite = pref === 'lite' || (pref === 'auto' && weak), auto = false; const cbs = [];
+  const apply = () => { document.documentElement.classList.toggle('lite', lite); cbs.forEach(f => { try { f(lite); } catch (e) {} }); };
+  document.documentElement.classList.toggle('lite', lite);
+  // in Auto: watch the real frame rate for a moment; if the computer cannot keep up, switch the light mode on
+  function probe(tries = 3) {
+    if (pref !== 'auto' || lite || !tries) return;
+    setTimeout(() => { if (pref !== 'auto' || lite) return; if (document.hidden) return probe(tries);
+      let n = 0, t0 = 0; const step = ts => { if (!t0) t0 = ts; n++; if (ts - t0 < 2000) return requestAnimationFrame(step);
+        const fps = (n - 1) / ((ts - t0) / 1000);
+        if (fps < 40 && !document.hidden) { lite = true; auto = true; apply(); if (window.__perfSay) window.__perfSay(); } else probe(tries - 1); };
+      requestAnimationFrame(step); }, tries === 3 ? 2500 : 12000);
+  }
+  return { get lite() { return lite; }, get pref() { return pref; }, get weak() { return weak; }, get byProbe() { return auto; },
+    set(p) { pref = p; try { localStorage.setItem('nxstock.perf', p); } catch (e) {} auto = false; lite = p === 'lite' || (p === 'auto' && weak); apply(); if (p === 'auto') probe(); },
+    on(f) { cbs.push(f); }, probe };
+})();
 
 /* ================= I18N ================= */
 const I18N = {
@@ -2373,6 +2775,40 @@ Object.assign(I18N.en,{'act.title':'Activate NXStock on this computer','act.p':'
 Object.assign(I18N.th,{'act.title':'เปิดใช้งาน NXStock บนเครื่องนี้','act.p':'ใช้งานครั้งแรกบนคอมพิวเตอร์หรือเบราว์เซอร์นี้ — กรอกชื่อผู้ใช้และรหัสผ่านของผู้พัฒนาเพื่อเริ่มใช้งาน','act.user':'ชื่อผู้ใช้','act.pass':'รหัสผ่าน','act.show':'แสดงรหัสผ่าน','act.go':'เปิดใช้งาน','act.bad':'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง','act.ok':'เปิดใช้งาน NXStock บนเครื่องนี้แล้ว'});
 Object.assign(I18N.en,{'combo.addItem':'Add new item','combo.addItemPh':'Type the new item name…','combo.addCat':'Add new category','combo.addCatPh':'Type the new category…'});
 Object.assign(I18N.th,{'combo.addItem':'เพิ่มสินค้าใหม่','combo.addItemPh':'พิมพ์ชื่อสินค้าใหม่…','combo.addCat':'เพิ่มหมวดหมู่ใหม่','combo.addCatPh':'พิมพ์ชื่อหมวดหมู่ใหม่…'});
+Object.assign(I18N.en,{'su.btn':'Stock Update','su.btnSub':'count · adjust','su.back':'Back to list','su.update':'Update','su.leftT':'Stock on hand','su.leftS':'press Update on the item you are checking',
+ 'su.pickT':'Choose an item to update','su.pickP':'Press Update on a card on the left. Compare the physical package with the amount in the system, then record what happened.','su.current':'Current amount',
+ 'su.step1':'What happened?','su.step2':'How many?','su.r.missing':'Amount missing','su.r.missing.d':'Count on the shelf is lower than the system','su.r.broken':'Broken','su.r.broken.d':'Package or product is damaged','su.r.expired':'Expired','su.r.expired.d':'Past its expiry date',
+ 'su.qty.missing':'How many are missing?','su.qty.broken':'How many are broken?','su.qty.expired':'How many have expired?','su.max':'of {q} {u}','su.useExp':'Use expired amount ({n})','su.noExp':'No lots with an expiry date for this item','su.before':'Before','su.after':'After',
+ 'su.note.ph':'e.g. found during monthly count','su.confirm':'Confirm update','su.pickReason':'Choose what happened first','su.tooMany':'More than the current amount ({q})','su.done':'{n}: −{q} recorded as {r}','su.recent':'Recent updates','su.none':'No updates yet','su.loss':'Value lost',
+ 'type.adj':'Adjust','h.adjusted':'Lost −{q} · {v}',
+ 'f.exp':'Expiry date','f.warn':'Notify before expiry','f.days':'days','f.warn.on':'Alert starts {d}','f.warn.none':'Set an expiry date to get alerts','f.exp.past':'This date has already passed','lb.exp':'EXP','set.expwarn':'Notify before expiry (days, default)','exp.in':'EXP in {d}d',
+ 'nc.title':'Notifications','nc.all':'All','nc.k.expired':'Expired','nc.k.soon':'Expiring soon','nc.k.out':'Out of stock','nc.k.low':'Almost out','nc.empty':'All good — nothing needs attention',
+ 'nc.m.expired':'Expired {d} day(s) ago · {q} {u}','nc.m.soon':'Expires in {d} day(s) · {date} · {q} {u}','nc.m.today':'Expires today · {q} {u}','nc.m.out':'Out of stock — restock soon','nc.m.low':'Only {q} {u} left','nc.warn':'Expiry alert','nc.days':'days before','nc.drag':'Drag to move · click to open'});
+Object.assign(I18N.th,{'su.btn':'อัปเดตสต็อก','su.btnSub':'ตรวจนับ · ปรับยอด','su.back':'กลับไปหน้ารายการ','su.update':'อัปเดต','su.leftT':'สินค้าคงคลัง','su.leftS':'กด “อัปเดต” ที่สินค้าที่กำลังตรวจ',
+ 'su.pickT':'เลือกสินค้าที่ต้องการอัปเดต','su.pickP':'กด “อัปเดต” ที่การ์ดสินค้าทางซ้าย เทียบของจริงกับยอดในระบบ แล้วบันทึกสิ่งที่เกิดขึ้น','su.current':'ยอดปัจจุบัน',
+ 'su.step1':'เกิดอะไรขึ้น?','su.step2':'จำนวนเท่าไร?','su.r.missing':'สูญหาย','su.r.missing.d':'นับของจริงได้น้อยกว่ายอดในระบบ','su.r.broken':'ชำรุด','su.r.broken.d':'บรรจุภัณฑ์หรือสินค้าเสียหาย','su.r.expired':'หมดอายุ','su.r.expired.d':'เลยวันหมดอายุแล้ว',
+ 'su.qty.missing':'สูญหายกี่ชิ้น?','su.qty.broken':'ชำรุดกี่ชิ้น?','su.qty.expired':'หมดอายุกี่ชิ้น?','su.max':'จาก {q} {u}','su.useExp':'ใช้จำนวนที่หมดอายุ ({n})','su.noExp':'สินค้านี้ยังไม่มีล็อตที่บันทึกวันหมดอายุ','su.before':'ก่อน','su.after':'หลัง',
+ 'su.note.ph':'เช่น พบตอนตรวจนับประจำเดือน','su.confirm':'ยืนยันการอัปเดต','su.pickReason':'เลือกประเภทก่อน','su.tooMany':'มากกว่ายอดปัจจุบัน ({q})','su.done':'บันทึก {n} −{q} เป็น “{r}” แล้ว','su.recent':'การอัปเดตล่าสุด','su.none':'ยังไม่มีการอัปเดต','su.loss':'มูลค่าที่เสียหาย',
+ 'type.adj':'ปรับยอด','h.adjusted':'เสียหาย −{q} · {v}',
+ 'f.exp':'วันหมดอายุ','f.warn':'แจ้งเตือนก่อนหมดอายุ','f.days':'วัน','f.warn.on':'เริ่มแจ้งเตือน {d}','f.warn.none':'ใส่วันหมดอายุเพื่อรับการแจ้งเตือน','f.exp.past':'วันที่นี้ผ่านไปแล้ว','lb.exp':'หมดอายุ','set.expwarn':'แจ้งเตือนก่อนหมดอายุ (วัน, ค่าเริ่มต้น)','exp.in':'หมดอายุใน {d} วัน',
+ 'nc.title':'การแจ้งเตือน','nc.all':'ทั้งหมด','nc.k.expired':'หมดอายุแล้ว','nc.k.soon':'ใกล้หมดอายุ','nc.k.out':'สินค้าหมด','nc.k.low':'ใกล้หมดสต็อก','nc.empty':'เรียบร้อยดี ไม่มีรายการต้องดูแล',
+ 'nc.m.expired':'หมดอายุแล้ว {d} วัน · {q} {u}','nc.m.soon':'หมดอายุในอีก {d} วัน · {date} · {q} {u}','nc.m.today':'หมดอายุวันนี้ · {q} {u}','nc.m.out':'สินค้าหมดแล้ว — ควรสั่งเพิ่ม','nc.m.low':'เหลือเพียง {q} {u}','nc.warn':'แจ้งเตือนหมดอายุ','nc.days':'วันล่วงหน้า','nc.drag':'ลากเพื่อย้าย · คลิกเพื่อเปิด'});
+Object.assign(I18N.en,{'sd.dLoss':'Loss','ls.k':'Loss','ls.titleL':'Value lost — missing, broken, expired','ls.title':'Value lost','ls.total':'Total value lost','ls.units':'{q} units written off','ls.qn':'{q} units · {n} times','ls.share':'Of revenue','ls.net':'Profit after loss','ls.life':'All-time loss',
+ 'ls.trend':'Loss over time','ls.top':'Items that keep losing value','ls.top.s':'highest loss first','ls.times':'lost {n} times','ls.recent':'Recent stock updates','ls.none':'No losses in this period','i.loss':'Value lost','nc.saved':'Expiry alert set to {d} days before'});
+Object.assign(I18N.th,{'sd.dLoss':'ความเสียหาย','ls.k':'ความเสียหาย','ls.titleL':'มูลค่าที่เสียไป — สูญหาย ชำรุด หมดอายุ','ls.title':'มูลค่าที่เสียหาย','ls.total':'มูลค่าเสียหายรวม','ls.units':'ตัดออก {q} หน่วย','ls.qn':'{q} หน่วย · {n} ครั้ง','ls.share':'เทียบรายได้','ls.net':'กำไรหลังหักความเสียหาย','ls.life':'เสียหายสะสมทั้งหมด',
+ 'ls.trend':'ความเสียหายตามช่วงเวลา','ls.top':'สินค้าที่เสียมูลค่าบ่อย','ls.top.s':'เรียงจากเสียหายมากสุด','ls.times':'เสียหาย {n} ครั้ง','ls.recent':'การอัปเดตสต็อกล่าสุด','ls.none':'ไม่มีความเสียหายในช่วงนี้','i.loss':'มูลค่าที่เสียหาย','nc.saved':'ตั้งแจ้งเตือนก่อนหมดอายุ {d} วันแล้ว'});
+Object.assign(I18N.en,{'st.f':'Show','st.all':'All','st.in':'In stock','st.low':'Almost out','st.out':'Out of stock','st.soon':'Expiring soon','st.expired':'Expired','sort.expSoon':'Expiry: soonest first',
+ 'su.pg':'{a}–{b} of {n}','et.title':'Expiry dates','et.noexp':'No expiry date','et.ago':'expired {d}d ago','et.today':'expires today','et.left':'{d}d left','et.lots':'{n} lots','et.total':'Total on hand','et.none':'Nothing on hand'});
+Object.assign(I18N.th,{'st.f':'แสดง','st.all':'ทั้งหมด','st.in':'มีสินค้า','st.low':'ใกล้หมดสต็อก','st.out':'สินค้าหมด','st.soon':'ใกล้หมดอายุ','st.expired':'หมดอายุแล้ว','sort.expSoon':'วันหมดอายุ: ใกล้สุดก่อน',
+ 'su.pg':'{a}–{b} จาก {n}','et.title':'วันหมดอายุ','et.noexp':'ไม่ระบุวันหมดอายุ','et.ago':'หมดอายุแล้ว {d} วัน','et.today':'หมดอายุวันนี้','et.left':'เหลือ {d} วัน','et.lots':'{n} ล็อต','et.total':'คงเหลือทั้งหมด','et.none':'ไม่มีสินค้าคงเหลือ'});
+Object.assign(I18N.en,{'perf.t':'Performance','perf.auto':'Auto','perf.lite':'Light (fastest)','perf.full':'Full effects','perf.h.autoL':'Auto: this computer runs best in Light mode, so heavy effects are off.','perf.h.autoF':'Auto: full effects are on. If the screen gets slow, Light mode switches on by itself.','perf.h.lite':'Blur, glow and looping animations are off — smoothest on older computers.','perf.h.full':'All effects on — best on a fast computer.','perf.auto.on':'Light mode switched on to keep things smooth · change it in Settings'});
+Object.assign(I18N.th,{'perf.t':'ประสิทธิภาพ','perf.auto':'อัตโนมัติ','perf.lite':'โหมดเบา (เร็วสุด)','perf.full':'เอฟเฟกต์เต็ม','perf.h.autoL':'อัตโนมัติ: เครื่องนี้ทำงานลื่นที่สุดในโหมดเบา จึงปิดเอฟเฟกต์หนัก ๆ ไว้','perf.h.autoF':'อัตโนมัติ: เปิดเอฟเฟกต์เต็ม หากหน้าจอเริ่มช้า จะสลับเป็นโหมดเบาให้เอง','perf.h.lite':'ปิดเบลอ แสงเรือง และแอนิเมชันวนซ้ำ — ลื่นที่สุดสำหรับเครื่องรุ่นเก่า','perf.h.full':'เปิดทุกเอฟเฟกต์ — เหมาะกับเครื่องที่แรง','perf.auto.on':'เปิดโหมดเบาให้อัตโนมัติเพื่อความลื่นไหล · เปลี่ยนได้ในตั้งค่า'});
+Object.assign(I18N.en,{'su.search':'Scan the QR on the package, or type a name / code…','su.scanBtn':'Scan QR','su.scanT':'Scan the item to update','su.found':'{n} — ready to update'});
+Object.assign(I18N.th,{'su.search':'สแกน QR บนบรรจุภัณฑ์ หรือพิมพ์ชื่อ / รหัส…','su.scanBtn':'สแกน QR','su.scanT':'สแกนสินค้าที่ต้องการอัปเดต','su.found':'{n} — พร้อมอัปเดต'});
+Object.assign(I18N.en,{'pic.add':'Add picture','pic.change':'Change picture','pic.remove':'Remove','pic.none':'No picture yet','pic.hint':'Choose a photo or drop one here — it is saved with this item','pic.saved':'Picture saved for {n}','pic.removed':'Picture removed','pic.full':'Not enough browser storage for this picture','pic.bad':'That file is not a picture'});
+Object.assign(I18N.th,{'pic.add':'เพิ่มรูปภาพ','pic.change':'เปลี่ยนรูปภาพ','pic.remove':'ลบรูป','pic.none':'ยังไม่มีรูปภาพ','pic.hint':'เลือกรูปหรือลากรูปมาวางที่นี่ — บันทึกไว้กับสินค้านี้','pic.saved':'บันทึกรูปของ {n} แล้ว','pic.removed':'ลบรูปภาพแล้ว','pic.full':'พื้นที่จัดเก็บของเบราว์เซอร์ไม่พอสำหรับรูปนี้','pic.bad':'ไฟล์นี้ไม่ใช่รูปภาพ'});
+Object.assign(I18N.en,{'pic.fromDevice':'From this device','pic.fromDevice.s':'choose a photo file','pic.fromCam':'Camera','pic.fromCam.s':'take a photo now','pic.back':'Back','pic.shot':'Take photo','pic.camStart':'Starting camera…','pic.noCam':'Camera not available','pic.noCamS':'Allow camera access, or choose a photo from this device.'});
+Object.assign(I18N.th,{'pic.fromDevice':'จากอุปกรณ์นี้','pic.fromDevice.s':'เลือกไฟล์รูปภาพ','pic.fromCam':'กล้อง','pic.fromCam.s':'ถ่ายรูปตอนนี้','pic.back':'ย้อนกลับ','pic.shot':'ถ่ายรูป','pic.camStart':'กำลังเปิดกล้อง…','pic.noCam':'ใช้กล้องไม่ได้','pic.noCamS':'อนุญาตการใช้กล้อง หรือเลือกรูปจากอุปกรณ์นี้'});
 Object.assign(I18N.en,{'model.topShort':'Top sales','model.topLong':'Top sales amount, last 30 days'});
 Object.assign(I18N.th,{'model.topShort':'ยอดขายสูงสุด','model.topLong':'ยอดขายสูงสุด 30 วันล่าสุด'});
 Object.assign(I18N.en,{'thm.title':'Bill theme','thm.hint':'colour, gradient & background','thm.business':'Ready-made for your business','thm.fill':'Fill','thm.solid':'Solid','thm.grad':'Gradient','thm.c1':'Colour','thm.c1g':'From','thm.c2':'To','thm.swap':'Swap colours','thm.angle':'Angle','thm.bg':'Background',
@@ -2401,6 +2837,12 @@ const PATHS = {
  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>',
  moon:'<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
  eye:'<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>',
+ filter:'<path d="M22 3H2l8 9.46V19l4 2v-8.54z"/>',
+ bell:'<path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+ hourglass:'<path d="M5 22h14M5 2h14M17 22v-4.2a2 2 0 0 0-.6-1.4L12 12l-4.4 4.4a2 2 0 0 0-.6 1.4V22M7 2v4.2a2 2 0 0 0 .6 1.4L12 12l4.4-4.4a2 2 0 0 0 .6-1.4V2"/>',
+ broken:'<path d="M21 7.5 12 3 3 7.5v9L12 21l9-4.5z"/><path d="m11.5 7 1.8 3.2-2 2.3 2 3.5"/>',
+ missing:'<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3M8.6 8.6l4.8 4.8M13.4 8.6l-4.8 4.8"/>',
+ clipcheck:'<rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>',
  swap:'<path d="M7 4 3 8l4 4"/><path d="M3 8h14"/><path d="m17 20 4-4-4-4"/><path d="M21 16H7"/>',
  x:'<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
  chevL:'<path d="m15 18-6-6 6-6"/>', chevR:'<path d="m9 18 6-6-6-6"/>', chevD:'<path d="m6 9 6 6 6-6"/>',
@@ -2492,7 +2934,7 @@ const FX = (() => {
   }
   function spawn(x, y, o = {}) {
     if (reduceMotion.matches) return;
-    const cols = o.colors || pal(), n = o.count || 14, shapes = ['c','s','c'];
+    const cols = o.colors || pal(), n = Perf.lite ? Math.ceil((o.count || 14) / 3) : (o.count || 14), shapes = ['c','s','c'];
     for (let i = 0; i < n; i++) {
       const a = (o.angle ?? -Math.PI / 2) + (Math.random() - .5) * (o.spread ?? Math.PI * 2);
       const sp = (o.speed || 4) * (.35 + Math.random());
@@ -2505,15 +2947,16 @@ const FX = (() => {
     burst: (x, y, o) => spawn(x, y, Object.assign({ count: 10, speed: 3.2, life: 40, size: 5, gravity: .03 }, o)),
     // digital click: bits (0/1) and pixels fly out along 8 grid directions, plus a dashed square that expands
     digital: (x, y) => {
-      if (reduceMotion.matches) return; const cols = ['--sky', '--mint', '--pink', '--violet'].map(css).concat(['#ffffff']);
+      if (reduceMotion.matches) return; if (Perf.lite) return spawn(x, y, { count: 12, speed: 3, life: 26, size: 4, gravity: 0, shape: 'c' });
+      const cols = ['--sky', '--mint', '--pink', '--violet'].map(css).concat(['#ffffff']);
       for (let i = 0; i < 20; i++) { const a = Math.round(Math.random() * 8) * Math.PI / 4 + (Math.random() - .5) * .22, sp = 2.4 + Math.random() * 4, bit = i < 11;
         P.push({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, g: 0, d: .9, life: 0, max: 36 + Math.random() * 26, s: bit ? 7.5 + Math.random() * 3.5 : 3.5 + Math.random() * 3, c: cols[(Math.random() * cols.length) | 0], sh: bit ? 'b' : 'p', ch: Math.random() < .5 ? '0' : '1', r: 0, vr: 0 }); }
       P.push({ x, y, vx: 0, vy: 0, g: 0, d: 1, life: 0, max: 30, s: 8, grow: 46, c: css('--sky'), sh: 'q', r: 0, vr: 0 }); P.push({ x, y, vx: 0, vy: 0, g: 0, d: 1, life: -6, max: 30, s: 4, grow: 30, c: css('--mint'), sh: 'q', r: 0, vr: 0 });
       if (P.length > 900) P.splice(0, P.length - 900); if (!raf) raf = requestAnimationFrame(tick);
     },
-    sparkle: (x, y) => spawn(x, y, { count: 3, speed: 1.2, gravity: -.02, life: 34, size: 6, shape: 's' }),
+    sparkle: (x, y) => Perf.lite ? 0 : spawn(x, y, { count: 3, speed: 1.2, gravity: -.02, life: 34, size: 6, shape: 's' }),
     confetti: (x, y) => { spawn(x, y, { count: 34, speed: 7, gravity: .06, drag: .95, life: 70, size: 5, shape: 'c' }); spawn(x, y, { count: 14, speed: 4, gravity: -.02, life: 70, size: 9, shape: 's' }); },
-    rain: () => { for (let i = 0; i < 5; i++) setTimeout(() => spawn(Math.random() * W, Math.random() * H * .5, { count: 6, speed: 1.2, gravity: -.01, life: 90, size: 7, shape: 's' }), i * 120); },
+    rain: () => { if (Perf.lite) return; for (let i = 0; i < 5; i++) setTimeout(() => spawn(Math.random() * W, Math.random() * H * .5, { count: 6, speed: 1.2, gravity: -.01, life: 90, size: 7, shape: 's' }), i * 120); },
     ring: (x, y, cols) => spawn(x, y, { count: 26, speed: 6, gravity: 0, drag: .92, life: 40, size: 6, colors: cols, shape: 'c' })
   };
 })();
@@ -2531,7 +2974,36 @@ function save() { if (!saveT) saveT = setTimeout(saveNow, 150); }
 addEventListener('pagehide', () => saveT && saveNow());
 document.addEventListener('visibilitychange', () => { if (document.hidden && saveT) saveNow(); });
 let VER = 0, _cache = { v: -1 };
-function commit() { VER++; save(); }
+function commit() { VER++; save(); if (window.NC) NC.soon(); }
+/* ---------- item pictures: stored small inside the item, shown through a cached blob URL ---------- */
+const PICS = new Map();
+function picURL(it) {
+  if (!it || !it.img) return ''; const c = PICS.get(it.id); if (c && c.src === it.img) return c.url;
+  if (c) URL.revokeObjectURL(c.url);
+  try { const [h, b64] = it.img.split(','), bin = atob(b64), u8 = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+    const url = URL.createObjectURL(new Blob([u8], { type: (/data:([^;]+)/.exec(h) || [])[1] || 'image/jpeg' })); PICS.set(it.id, { src: it.img, url }); return url; } catch (e) { return it.img; }
+}
+function avatarInner(it) { const u = picURL(it); return u ? `<img src="${u}" alt="" draggable="false">` : esc(initials(F(it, 'name'))); }
+function avatar(it, sz) { return `<span class="avatar ${sz || ''}${it.img ? ' has-img' : ''}" style="--h:${it.hue}"${it.id && itemById(it.id) ? ` data-av="${it.id}"` : ''}>${avatarInner(it)}</span>`; }
+// shrink a chosen photo so it fits in browser storage
+function shrinkImage(file, max) {
+  return new Promise((res, rej) => { const url = URL.createObjectURL(file), im = new Image();
+    im.onload = () => { const k = Math.min(1, max / Math.max(im.naturalWidth, im.naturalHeight)), w = Math.max(1, Math.round(im.naturalWidth * k)), h = Math.max(1, Math.round(im.naturalHeight * k));
+      const cv = document.createElement('canvas'); cv.width = w; cv.height = h; const c = cv.getContext('2d'); c.fillStyle = '#fff'; c.fillRect(0, 0, w, h); c.imageSmoothingQuality = 'high'; c.drawImage(im, 0, 0, w, h);
+      URL.revokeObjectURL(url); res(cv.toDataURL('image/jpeg', .8)); };
+    im.onerror = () => { URL.revokeObjectURL(url); rej(new Error('bad')); }; im.src = url; });
+}
+async function setItemPic(it, file) {
+  if (!file || !/^image\//.test(file.type)) { toast(t('pic.bad'), 'warn'); return false; }
+  const old = it.img; let ok = false;
+  for (const max of [440, 320, 220]) {   // try smaller if the browser storage is nearly full
+    try { it.img = await shrinkImage(file, max); } catch (e) { it.img = old; toast(t('pic.bad'), 'warn'); return false; }
+    try { localStorage.setItem(KEY, JSON.stringify(DB)); ok = true; break; } catch (e) {}
+  }
+  if (!ok) { if (old) it.img = old; else delete it.img; toast(t('pic.full'), 'err'); return false; }
+  commit(); refreshAvatars(it); toast(t('pic.saved', { n: F(it, 'name') })); return true;
+}
+function refreshAvatars(it) { $$(`[data-av="${it.id}"]`).forEach(a => { a.classList.toggle('has-img', !!it.img); a.innerHTML = avatarInner(it); }); }
 const HUES = [330, 255, 160, 42, 18, 200, 290, 100, 350, 180, 220, 60];
 const DEF = { lots: ['A-01','A-02','A-03','B-01','B-02','C-01','D-01'] };
 
@@ -2550,6 +3022,7 @@ function states() {
   for (const x of tx) {
     const s = m[x.itemId]; if (!s) continue; s.count++; s.last = x.date;
     if (x.type === 'in') { s.avg = s.qty > 0 ? (s.qty * s.avg + x.qty * x.buyPrice) / (s.qty + x.qty) : x.buyPrice; s.qty += x.qty; s.inQ += x.qty; }
+    else if (x.type === 'adj') { s.qty -= x.qty; s.adjQ = (s.adjQ || 0) + x.qty; s.loss = (s.loss || 0) + x.qty * (x.unitCost || 0); }
     else { s.qty -= x.qty; s.outQ += x.qty; s.rev += x.qty * x.sellPrice; s.cogs += x.qty * x.unitCost; }
   }
   for (const k in m) m[k].profit = m[k].rev - m[k].cogs;
@@ -2564,6 +3037,7 @@ function agg(s, e, itemId) {
     if (x.date < s || x.date >= e) continue; if (itemId && x.itemId !== itemId) continue;
     r.count++; const p = r.per[x.itemId] || (r.per[x.itemId] = { inQ: 0, outQ: 0, rev: 0, cogs: 0, count: 0 }); p.count++;
     if (x.type === 'in') { r.inQ += x.qty; r.purch += x.qty * x.buyPrice; p.inQ += x.qty; }
+    else if (x.type === 'adj') { const lv = x.qty * (x.unitCost || 0); r.adjQ = (r.adjQ || 0) + x.qty; r.loss = (r.loss || 0) + lv; p.adjQ = (p.adjQ || 0) + x.qty; p.loss = (p.loss || 0) + lv; const rs = r.byReason || (r.byReason = {}); const q0 = rs[x.reason] || (rs[x.reason] = { q: 0, v: 0, n: 0 }); q0.q += x.qty; q0.v += lv; q0.n++; const pr0 = p.byReason || (p.byReason = {}); const q1 = pr0[x.reason] || (pr0[x.reason] = { q: 0, v: 0, n: 0 }); q1.q += x.qty; q1.v += lv; q1.n++; }
     else { r.outQ += x.qty; r.rev += x.qty * x.sellPrice; r.cogs += x.qty * x.unitCost; p.outQ += x.qty; p.rev += x.qty * x.sellPrice; p.cogs += x.qty * x.unitCost; }
   }
   r.profit = r.rev - r.cogs; return r;
@@ -2574,6 +3048,7 @@ function series(type, anchor, itemId) {
   for (const x of DB.txns) {
     if (itemId && x.itemId !== itemId) continue; const i = bIdx(bs, x.date); if (i < 0) continue; const b = bs[i];
     if (x.type === 'in') { b.inQ += x.qty; b.buyV += x.buyPrice * x.qty; b.buyQ += x.qty; }
+    else if (x.type === 'adj') { b.adjQ = (b.adjQ || 0) + x.qty; b.loss = (b.loss || 0) + x.qty * (x.unitCost || 0); b['l_' + x.reason] = (b['l_' + x.reason] || 0) + x.qty * (x.unitCost || 0); continue; }
     else { b.outQ += x.qty; b.rev += x.sellPrice * x.qty; b.cogs += x.unitCost * x.qty; b.actV += x.sellPrice * x.qty; b.actQ += x.qty; }
     if (x.sellEst) { b.estV += x.sellEst * x.qty; b.estQ += x.qty; }
   }
@@ -2598,12 +3073,94 @@ function findItemByCode(raw) {
 function createItem(data) { DB.settings.counter = (DB.settings.counter || 0) + 1; DB.settings.numSeq = (DB.settings.numSeq || 0) + 1; const it = { id: uid(), num: makeNum(DB.settings.numSeq), code: 'ITM-' + pad(DB.settings.counter, 4), hue: HUES[DB.items.length % HUES.length], createdAt: Date.now(), ...data }; DB.items.push(it); return it; }
 const nextCode = () => 'ITM-' + pad((DB.settings.counter || 0) + 1, 4);
 function nextLot(date) { const d = new Date(date); const [s, e] = P.range('day', d); const n = DB.txns.filter(x => x.type === 'in' && x.date >= +s && x.date < +e).length + 1; return `LOT-${String(d.getFullYear()).slice(2)}${pad(d.getMonth() + 1)}${pad(d.getDate())}-${pad(n, 3)}`; }
-function doStockIn({ item, qty, buyPrice, sellEst, vendor, note }) {
+function doStockIn({ item, qty, buyPrice, sellEst, vendor, note, exp, warn }) {
   const date = Date.now(); // stamped automatically at confirmation
   const x = { id: uid(), itemId: item.id, type: 'in', qty, buyPrice, sellEst: sellEst || item.sellEst || 0, lot: nextLot(date), party: vendor || '', note: note || '', date };
+  if (exp) { x.exp = exp; if (warn >= 0 && warn !== expWarnDef()) x.warn = warn; }
   DB.txns.push(x); item.buyPrice = buyPrice; if (sellEst > 0) item.sellEst = sellEst; if (vendor) setField(item, 'vendor', vendor);
   commit(); return x;
 }
+// stock update: missing / broken / expired — reduces stock and is valued at the average cost
+function doAdjust({ item, qty, reason, note }) {
+  const s = st(item.id); if (!(qty > 0)) throw new Error(t('err.qty')); if (qty > s.qty) throw new Error(t('su.tooMany', { q: fmtNum(s.qty) }));
+  const x = { id: uid(), itemId: item.id, type: 'adj', reason, qty, unitCost: +(+s.avg || 0).toFixed(4), note: note || '', date: Date.now() };
+  DB.txns.push(x); commit(); return x;
+}
+/* ---------- expiry: lots are used first-in-first-out; an "expired" update uses expired lots first ---------- */
+const DAY = 864e5, day0 = () => { const d = new Date(); d.setHours(0, 0, 0, 0); return +d; };
+const expWarnDef = () => (DB.settings.expWarn ?? 30);
+const ymdToMs = v => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v || ''); return m ? +new Date(+m[1], +m[2] - 1, +m[3]) : 0; };
+const msToYmd = ms => { const d = new Date(ms); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };
+let LOTS = { v: -1, m: {} };
+function lotsAll() {
+  if (LOTS.v === VER) return LOTS.m;
+  const m = {}, debt = {};
+  for (const x of [...DB.txns].sort((a, b) => a.date - b.date)) {
+    const L = m[x.itemId] || (m[x.itemId] = []);
+    if (x.type === 'in') { const d = Math.min(debt[x.itemId] || 0, x.qty); if (d) debt[x.itemId] -= d; L.push({ id: x.id, lot: x.lot, exp: x.exp || 0, warn: x.warn, rem: x.qty - d, date: x.date }); continue; }
+    let need = x.qty, order = L.filter(l => l.rem > 0);
+    if (x.type === 'adj' && x.reason === 'expired') { const ex = l => l.exp && l.exp < x.date + DAY; order = [...order.filter(ex).sort((a, b) => a.exp - b.exp), ...order.filter(l => !ex(l))]; }
+    for (const l of order) { if (need <= 0) break; const k = Math.min(l.rem, need); l.rem -= k; need -= k; }
+    if (need > 0) debt[x.itemId] = (debt[x.itemId] || 0) + need; // taken before it was recorded in — comes off the next stock-in
+  }
+  LOTS = { v: VER, m }; return m;
+}
+const lotsOf = id => (lotsAll()[id] || []).filter(l => l.rem > 0);
+const expiredQty = id => { const t0 = day0(); return lotsOf(id).filter(l => l.exp && l.exp < t0).reduce((a, l) => a + l.rem, 0); };
+const NCK = { expired: { p: 1, c: '#FF3B5C', ic: 'hourglass' }, out: { p: 2, c: '#FF6A3D', ic: 'package' }, soon: { p: 3, c: '#FFA62B', ic: 'clock' }, low: { p: 4, c: '#F5C842', ic: 'alert' } };
+let ALC = { k: '' };
+function alerts() {
+  const key = VER + '|' + day0() + '|' + expWarnDef() + '|' + DB.settings.lowStock + '|' + LANG; if (ALC.k === key) return ALC.a;
+  const A = [], t0 = day0();
+  for (const it of DB.items) {
+    const s = st(it.id), u = F(it, 'unit');
+    if (s.qty <= 0) A.push({ k: 'out', it, q: 0, u });
+    else if (s.qty <= DB.settings.lowStock) A.push({ k: 'low', it, q: s.qty, u });
+    let exQ = 0, exD = 0, exLot = '', soQ = 0, soD = 1e9, soExp = 0;
+    for (const l of lotsOf(it.id)) {
+      if (!l.exp) continue; const dl = Math.round((l.exp - t0) / DAY);
+      if (dl < 0) { exQ += l.rem; if (-dl > exD) { exD = -dl; exLot = l.lot; } }
+      else if (dl <= (l.warn >= 0 ? l.warn : expWarnDef())) { soQ += l.rem; if (dl < soD) { soD = dl; soExp = l.exp; } }
+    }
+    if (exQ) A.push({ k: 'expired', it, q: exQ, u, d: exD, lot: exLot });
+    if (soQ) A.push({ k: 'soon', it, q: soQ, u, d: soD, exp: soExp });
+  }
+  A.sort((a, b) => NCK[a.k].p - NCK[b.k].p || (a.k === 'expired' ? b.d - a.d : a.k === 'soon' ? a.d - b.d : a.q - b.q));
+  ALC = { k: key, a: A }; return A;
+}
+const itemAlert = id => alerts().find(a => a.it.id === id);
+const nextExp = id => { let m = 0; for (const l of lotsOf(id)) if (l.exp && (!m || l.exp < m)) m = l.exp; return m; };
+// remaining stock grouped by expiry date (lots with the same date are merged)
+function expGroups(id) {
+  const g = {}; for (const l of lotsOf(id)) { const k = l.exp || 0; const r = g[k] || (g[k] = { exp: k, q: 0, n: 0, lots: [] }); r.q += l.rem; r.n++; r.lots.push(l.lot); }
+  return Object.values(g).sort((a, b) => (a.exp || 9e15) - (b.exp || 9e15));
+}
+function stMatch(it, s, k) {
+  if (k === 'in') return s.qty > 0; if (k === 'out') return s.qty <= 0; if (k === 'low') return s.qty <= DB.settings.lowStock;
+  return alerts().some(a => a.it === it && a.k === k);
+}
+function stChips() {
+  const box = $('#ls-st'); if (!box) return; const SS = states();
+  const n = k => DB.items.filter(it => stMatch(it, SS[it.id] || st(it.id), k)).length;
+  const C = { all: 'var(--accent)', in: '#43D9A6', low: NCK.low.c, out: NCK.out.c, soon: NCK.soon.c, expired: NCK.expired.c };
+  const IC = { all: 'layers', in: 'package', low: 'alert', out: 'package', soon: 'clock', expired: 'hourglass' };
+  const cur = S.list.st || 'all';
+  box.innerHTML = `<span class="st-l">${ic('filter', 'ico-xs')} ${t('st.f')}</span>` + ['all', 'in', 'low', 'out', 'soon', 'expired'].map(k => `<button type="button" class="st-chip ${cur === k ? 'on' : ''}" data-st="${k}" ${k === 'low' ? 'id="ls-low"' : ''} style="--c:${C[k]}">${ic(IC[k], 'ico-xs')} ${t('st.' + k)} <i>${k === 'all' ? DB.items.length : n(k)}</i></button>`).join('');
+}
+function expTipHTML(it) {
+  const G = expGroups(it.id), t0 = day0(), u = esc(F(it, 'unit')), s = st(it.id);
+  const rows = G.length ? G.map(g => { const dl = g.exp ? Math.round((g.exp - t0) / DAY) : null, w = expWarnDef();
+    const cls = dl == null ? 'none' : dl < 0 ? 'past' : dl <= w ? 'soon' : 'ok';
+    return `<div class="et-r ${cls}"><span class="et-d">${g.exp ? fmtDate(g.exp) : t('et.noexp')}</span><span class="et-b">${dl == null ? '' : dl < 0 ? t('et.ago', { d: -dl }) : dl === 0 ? t('et.today') : t('et.left', { d: dl })}</span><b>${fmtNum(g.q)} <small>${u}</small></b>${g.n > 1 ? `<em>${t('et.lots', { n: g.n })}</em>` : `<em class="mono">${esc(g.lots[0] || '')}</em>`}</div>`; }).join('') : `<div class="et-empty">${t('et.none')}</div>`;
+  return `<div class="et-h">${ic('hourglass', 'ico-xs')} <b>${t('et.title')}</b><small>${esc(F(it, 'name'))}</small></div>${rows}<div class="et-f"><span>${t('et.total')}</span><b>${fmtNum(Math.max(0, s.qty))} ${u}</b></div>`;
+}
+function alertMsg(a) {
+  if (a.k === 'expired') return t('nc.m.expired', { d: a.d, q: fmtNum(a.q), u: a.u });
+  if (a.k === 'soon') return a.d === 0 ? t('nc.m.today', { q: fmtNum(a.q), u: a.u }) : t('nc.m.soon', { d: a.d, date: fmtDate(a.exp), q: fmtNum(a.q), u: a.u });
+  if (a.k === 'out') return t('nc.m.out');
+  return t('nc.m.low', { q: fmtNum(a.q), u: a.u });
+}
+const REASONS = { missing: { c: '#A78BFA', ic: 'missing' }, broken: { c: '#FF8A3D', ic: 'broken' }, expired: { c: '#FF3B5C', ic: 'hourglass' } };
 function doWithdraw({ item, qty, sellPrice, customer, note }) {
   const s = st(item.id); if (qty > s.qty) throw new Error(t('err.stock', { q: fmtNum(s.qty), u: F(item, 'unit') }));
   const date = Date.now(); // stamped automatically at confirmation
@@ -2846,11 +3403,11 @@ function neonWatch(ch) {
   ch.canvas.__chart = ch; neonIO.observe(ch.canvas);
 }
 function neonUnwatch(ch) { if (!ch) return; neonVis.delete(ch); if (neonIO && ch.canvas) { try { neonIO.unobserve(ch.canvas); } catch (e) {} } }
-function neonKick() { if (REDUCED || neonRAF || !neonVis.size) return; neonRAF = requestAnimationFrame(neonTick); }
+function neonKick() { if (REDUCED || Perf.lite || neonRAF || !neonVis.size) return; neonRAF = requestAnimationFrame(neonTick); }
 function neonTick(ts) {
-  if (!neonVis.size) { neonRAF = 0; return; }              // nothing on screen → the loop stops completely
+  if (!neonVis.size || Perf.lite) { neonRAF = 0; return; }              // nothing on screen → the loop stops completely
   neonRAF = requestAnimationFrame(neonTick);
-  if (document.hidden || ts - neonLast < 33) return; neonLast = ts;
+  if (document.hidden || ts - neonLast < 40) return; neonLast = ts;
   for (const ch of neonVis) { if (!ch.canvas || !ch.canvas.isConnected || !ch.ctx) { neonVis.delete(ch); continue; } try { ch.draw(); } catch (e) { neonVis.delete(ch); } }
 }
 function neonStart() {}
@@ -3082,13 +3639,15 @@ function diffBadge(actual, est, short) {
 function rankList(rows, vf, fmt, color, sub, medals = true) {
   if (!rows.length) return `<div class="empty-sm">${ic('activity')} ${t('r.empty')}</div>`;
   const mx = Math.max(...rows.map(r => Math.abs(vf(r))), 1);
-  return rows.map((r, i) => { const v = vf(r); return `<div class="rank" data-goto-item="${r.it.id}"><span class="rank-n ${medals && i < 3 ? 't' + i : ''}">${i + 1}</span><span class="avatar sm" style="--h:${r.it.hue}">${esc(initials(F(r.it, 'name')))}</span><div class="min0"><div class="rank-row"><b>${esc(F(r.it, 'name'))}</b><span class="num">${fmt(v)}</span></div><div class="bar"><i style="width:${Math.max(2, Math.abs(v) / mx * 100)}%;background:${typeof color === 'function' ? color(v) : color};animation-delay:${i * 50}ms"></i></div><small>${sub(r)}</small></div></div>`; }).join('');
+  return rows.map((r, i) => { const v = vf(r); return `<div class="rank" data-goto-item="${r.it.id}"><span class="rank-n ${medals && i < 3 ? 't' + i : ''}">${i + 1}</span>${avatar(r.it, 'sm')}<div class="min0"><div class="rank-row"><b>${esc(F(r.it, 'name'))}</b><span class="num">${fmt(v)}</span></div><div class="bar"><i style="width:${Math.max(2, Math.abs(v) / mx * 100)}%;background:${typeof color === 'function' ? color(v) : color};animation-delay:${i * 50}ms"></i></div><small>${sub(r)}</small></div></div>`; }).join('');
 }
 function txTable(tx, { item = true } = {}) {
   if (!tx.length) return `<div class="empty-sm">${ic('history')} ${t('h.none')}</div>`;
   return `<div class="table-wrap"><table><thead><tr><th>${t('t.date')}</th>${item ? `<th>${t('t.item')}</th>` : ''}<th>${t('t.type')}</th><th class="r">${t('t.qty')}</th><th class="r">${t('t.buy')}</th><th class="r">${t('t.est')}</th><th class="r">${t('t.act')}</th><th class="r">${t('t.vs')}</th><th class="r">${t('t.profit')}</th><th>${t('t.lot')}</th><th>${t('t.note')}</th></tr></thead><tbody>${tx.map(x => {
     const it = itemById(x.itemId), out = x.type === 'out', pr = out ? (x.sellPrice - x.unitCost) * x.qty : 0;
-    return `<tr${item && it ? ` class="tx-link" data-goto-item="${it.id}" title="${esc(F(it, 'name'))}"` : ''}><td><b>${fmtDT(x.date)}</b></td>${item ? `<td>${it ? `<a href="#item/${it.id}" style="font-weight:800;text-decoration:none">${esc(F(it, 'name'))}</a>` : '—'}</td>` : ''}<td><span class="chip ${out ? 'badge-out' : 'badge-in'}">${ic(out ? 'out' : 'in', 'ico-xs')} ${t(out ? 'type.out' : 'type.in')}</span></td><td class="r num">${out ? '−' : '+'}${fmtNum(x.qty)}</td><td class="r">${out ? `<span class="muted" title="${t('t.avgCostTip')}">${fmtMoney(x.unitCost)}</span>` : `<b>${fmtMoney(x.buyPrice)}</b>`}</td><td class="r">${x.sellEst ? fmtMoney(x.sellEst) : '—'}</td><td class="r"><b>${out ? fmtMoney(x.sellPrice) : '—'}</b></td><td class="r">${out && x.sellEst ? diffBadge(x.sellPrice, x.sellEst, true) : '—'}</td><td class="r">${out ? `<b class="${pr >= 0 ? 'up' : 'down'}">${fmtMoney(pr)}</b>` : '—'}</td><td>${out ? esc(x.party || '—') : `<span class="mono">${esc(x.lot || '—')}</span>${x.party ? ' · ' + esc(x.party) : ''}`}</td><td class="muted">${esc(x.note || '')}</td></tr>`;
+    if (x.type === 'adj') { const R = REASONS[x.reason] || REASONS.missing;
+      return `<tr${item && it ? ` class="tx-link" data-goto-item="${it.id}" title="${esc(F(it, 'name'))}"` : ''}><td><b>${fmtDT(x.date)}</b></td>${item ? `<td>${it ? `<a href="#item/${it.id}" style="font-weight:800;text-decoration:none">${esc(F(it, 'name'))}</a>` : '—'}</td>` : ''}<td><span class="chip adj-chip" style="--rc:${R.c}">${ic(R.ic, 'ico-xs')} ${t('su.r.' + x.reason)}</span></td><td class="r num">−${fmtNum(x.qty)}</td><td class="r"><span class="muted">${fmtMoney(x.unitCost)}</span></td><td class="r">—</td><td class="r">—</td><td class="r">—</td><td class="r"><b class="down">−${fmtMoney(x.qty * x.unitCost)}</b></td><td>${t('type.adj')}</td><td class="muted">${esc(x.note || '')}</td></tr>`; }
+    return `<tr${item && it ? ` class="tx-link" data-goto-item="${it.id}" title="${esc(F(it, 'name'))}"` : ''}><td><b>${fmtDT(x.date)}</b></td>${item ? `<td>${it ? `<a href="#item/${it.id}" style="font-weight:800;text-decoration:none">${esc(F(it, 'name'))}</a>` : '—'}</td>` : ''}<td><span class="chip ${out ? 'badge-out' : 'badge-in'}">${ic(out ? 'out' : 'in', 'ico-xs')} ${t(out ? 'type.out' : 'type.in')}</span></td><td class="r num">${out ? '−' : '+'}${fmtNum(x.qty)}</td><td class="r">${out ? `<span class="muted" title="${t('t.avgCostTip')}">${fmtMoney(x.unitCost)}</span>` : `<b>${fmtMoney(x.buyPrice)}</b>`}</td><td class="r">${x.sellEst ? fmtMoney(x.sellEst) : '—'}</td><td class="r"><b>${out ? fmtMoney(x.sellPrice) : '—'}</b></td><td class="r">${out && x.sellEst ? diffBadge(x.sellPrice, x.sellEst, true) : '—'}</td><td class="r">${out ? `<b class="${pr >= 0 ? 'up' : 'down'}">${fmtMoney(pr)}</b>` : '—'}</td><td>${out ? esc(x.party || '—') : `<span class="mono">${esc(x.lot || '—')}</span>${x.exp ? ` <span class="exp-tag ${x.exp < day0() ? 'past' : ''}">${t('lb.exp')} ${fmtDate(x.exp)}</span>` : ''}${x.party ? ' · ' + esc(x.party) : ''}`}</td><td class="muted">${esc(x.note || '')}</td></tr>`;
   }).join('')}</tbody></table></div>`;
 }
 const starterHTML = () => `<div class="starter">${qrAnim('sm')}<div class="txt"><b>${t('starter.title')}</b><p>${t('starter.p')}</p></div><div class="starter-actions"><button class="btn btn-primary" data-act="seed">${ic('package')} ${t('set.seed')}</button><a class="btn" href="#stock">${ic('in')} ${t('starter.start')}</a></div></div>`;
@@ -3114,7 +3673,7 @@ function labelHTML(item, info, i, n, showPrice, lang, port) {
   return `<div class="label${port ? ' port' : ''}" lang="${LANG}"><div class="lb-top"><span>✦ ${esc(DB.settings.company || 'NXStock')}</span><span class="lb-no">No. ${pad(i, 3)}/${pad(n, 3)}</span></div>
     <div class="lb-name">${esc(F(item, 'name') || '—')}</div>
     <div class="lb-cat">${esc(F(item, 'category') || t('uncat'))} · ${esc(F(item, 'unit') || '')}</div>
-    <div class="lb-bottom"><dl class="lb-info">${showPrice && item.sellEst ? `<dt class="lb-pr-t">${t('lb.price')}</dt><dd class="lb-pr">${esc(priceCode(item.sellEst))}</dd>` : ''}<dt>${t('lb.code')}</dt><dd>${esc(item.code)}</dd><dt>${t('lb.lot')}</dt><dd>${esc(info.lot || '—')}</dd><dt>${t('lb.in')}</dt><dd>${esc(fmtDTs(info.date))}</dd><dt>${t('lb.vendor')}</dt><dd>${esc(info.vendor || F(item, 'vendor') || '—')}</dd><dt>${t('lb.loc')}</dt><dd>${esc(item.location || '—')}</dd><dt>${t('lb.note')}</dt><dd class="lb-note">${esc(info.note || '—')}</dd></dl>
+    <div class="lb-bottom"><dl class="lb-info">${showPrice && item.sellEst ? `<dt class="lb-pr-t">${t('lb.price')}</dt><dd class="lb-pr">${esc(priceCode(item.sellEst))}</dd>` : ''}<dt>${t('lb.code')}</dt><dd>${esc(item.code)}</dd><dt>${t('lb.lot')}</dt><dd>${esc(info.lot || '—')}</dd><dt>${t('lb.in')}</dt><dd>${esc(fmtDTs(info.date))}</dd>${info.exp ? `<dt>${t('lb.exp')}</dt><dd class="lb-exp">${esc(fmtDate(info.exp))}</dd>` : ''}<dt>${t('lb.vendor')}</dt><dd>${esc(info.vendor || F(item, 'vendor') || '—')}</dd><dt>${t('lb.loc')}</dt><dd>${esc(item.location || '—')}</dd><dt>${t('lb.note')}</dt><dd class="lb-note">${esc(info.note || '—')}</dd></dl>
     <div class="lb-qrcol">${item.num ? `<div class="lb-num" title="${esc(t('lb.numT'))}"><span>${t('lb.num')}</span><b>${esc(fmtNumCode(item.num))}</b></div>` : ''}${qr ? `<img class="lb-qr" src="${qr}" alt="QR ${esc(item.code)}">` : `<div class="lb-qr lb-qr-fallback">${esc(item.code)}</div>`}</div></div></div>`;
 }
 // price / unit  <->  total price: whichever field you type in drives the other
@@ -3174,8 +3733,8 @@ function printLabels(item, info, copies, showPrice, btn, lang, size) {
 }
 function openPrintModal(it, txn, { success = false } = {}) {
   let info;
-  if (txn) info = { lot: txn.lot, date: txn.date, vendor: txn.party, note: txn.note };
-  else { const last = DB.txns.filter(x => x.itemId === it.id && x.type === 'in').sort((a, b) => b.date - a.date)[0]; info = last ? { lot: last.lot, date: last.date, vendor: last.party, note: last.note } : { lot: '—', date: Date.now(), vendor: F(it, 'vendor'), note: '' }; }
+  if (txn) info = { lot: txn.lot, date: txn.date, vendor: txn.party, note: txn.note, exp: txn.exp };
+  else { const last = DB.txns.filter(x => x.itemId === it.id && x.type === 'in').sort((a, b) => b.date - a.date)[0]; info = last ? { lot: last.lot, date: last.date, vendor: last.party, note: last.note, exp: last.exp } : { lot: '—', date: Date.now(), vendor: F(it, 'vendor'), note: '' }; }
   let copies = success ? Math.max(1, Math.min(txn.qty, 200)) : 1, showPrice = true;
   const m = openModal(`<div class="modal-h"><div class="tile3d sm" style="--tone:var(--${success ? 'mint' : 'sky'})">${ic(success ? 'check' : 'printer')}</div><div class="min0"><h3 class="m-title">${success ? t('pm.success', { q: fmtNum(txn.qty), u: esc(F(it, 'unit')) }) : t('pm.title')}</h3><p class="m-sub">${esc(F(it, 'name'))} · ${esc(it.code)}${info.lot && info.lot !== '—' ? ' · ' + esc(info.lot) : ''}</p>${success ? `<p class="m-sub">${ic('clock', 'ico-xs')} ${t('pm.at', { d: fmtClock(txn.date) })}</p>` : ''}</div><button class="icon-btn modal-x" data-close aria-label="close">${ic('x')}</button></div>
   <div class="modal-b"><div class="label-stage" id="pm-stage"></div>
@@ -3541,7 +4100,7 @@ function openBillLine(b, line, preItem) {
   const avail = () => sel ? st(sel.id).qty + (edit ? line.qty : 0) : 0;
   function choose(it) {
     sel = it; f('bl-item').value = F(it, 'name'); f('bl-unit').value = F(it, 'unit'); link.set(it.sellEst || '');
-    const s = st(it.id); f('bl-sel').innerHTML = `<div class="sel-item"><span class="avatar lg" style="--h:${it.hue}">${esc(initials(F(it, 'name')))}</span><div class="min0"><b>${esc(F(it, 'name'))}</b><span class="chip mono">${esc(it.code)}</span> <span class="chip">${esc(F(it, 'category'))}</span></div><div class="sel-stats">${t('i.stock')}<br><b class="${qCls(s.qty)}">${fmtNum(s.qty)}</b> ${esc(F(it, 'unit'))}</div></div>`;
+    const s = st(it.id); f('bl-sel').innerHTML = `<div class="sel-item">${avatar(it, 'lg')}<div class="min0"><b>${esc(F(it, 'name'))}</b><span class="chip mono">${esc(it.code)}</span> <span class="chip">${esc(F(it, 'category'))}</span></div><div class="sel-stats">${t('i.stock')}<br><b class="${qCls(s.qty)}">${fmtNum(s.qty)}</b> ${esc(F(it, 'unit'))}</div></div>`;
     upd(); setTimeout(() => { f('bl-qty').focus(); f('bl-qty').select(); }, 60);
   }
   combo(f('bl-item'), { allowNew: false, source: () => DB.items.map(it => ({ it, s: st(it.id) })).sort((a, c) => (c.s.qty > 0) - (a.s.qty > 0) || F(a.it, 'name').localeCompare(F(c.it, 'name'))).map(({ it, s }) => ({ label: F(it, 'name'), key: it.code + ' ' + (it.num || ''), sub: `${it.code} · ${fmtNum(s.qty)} ${F(it, 'unit')}`, item: it })), onPick: o => { if (o) choose(o.item); } });
@@ -3764,7 +4323,8 @@ function addSampleBill() {
 }
 
 /* ================= STATE / ROUTER ================= */
-const S = { view: 'home', dash: { type: 'month', anchor: new Date() }, item: { id: null, type: 'month', anchor: new Date(), tab: 'overview', filter: 'all' }, list: { q: '', cat: 'all', sort: 'name', low: false }, dashOrder: { act: 'desc', val: 'desc' }, recent: [] };
+const SU = { id: null, reason: null, qty: 1, note: '', page: 0, per: 8, cols: 4, rows: 2, arr: [] };
+const S = { view: 'home', dash: { type: 'month', anchor: new Date() }, item: { id: null, type: 'month', anchor: new Date(), tab: 'overview', filter: 'all' }, list: { q: '', cat: 'all', sort: 'name', st: 'all' }, dashOrder: { act: 'desc', val: 'desc' }, recent: [] };
 const VIEWS = ['home', 'stock', 'list', 'withdraw', 'bill', 'dashboard', 'scan', 'item'];
 let routeTok = 0;
 function route() {
@@ -3812,26 +4372,36 @@ const Stars = (() => {
       return { x: sq * Math.cos(th) * d, y: u * d * .75, z: sq * Math.sin(th) * d, r: Math.random() < .94 ? Math.random() * .8 + .25 : Math.random() * 1.3 + .9, a: Math.random() * .7 + .25, tw: Math.random() * 7, sp: .3 + Math.random() * 1.4 }; });
     for (let i = 0; i < 14; i++) { const th = Math.random() * Math.PI * 2, d = 170 + Math.random() * 140; pts.push({ x: Math.cos(th) * d, y: (Math.random() - .5) * 170, z: Math.sin(th) * d, r: 2.2 + Math.random() * 2, a: .16 + Math.random() * .2, dust: 1 }); }
   }
-  function size() { const d = Math.min(2, devicePixelRatio || 1); W = innerWidth; H = innerHeight; cv.width = W * d; cv.height = H * d; cv.style.width = W + 'px'; cv.style.height = H + 'px'; ctx.setTransform(d, 0, 0, d, 0, 0); ctx.lineCap = 'round'; fl = Math.max(W, H) * .62; }
+  function size() { const d = Perf.lite ? 1 : Math.min(1.5, devicePixelRatio || 1); W = innerWidth; H = innerHeight; cv.width = W * d; cv.height = H * d; cv.style.width = W + 'px'; cv.style.height = H + 'px'; ctx.setTransform(d, 0, 0, d, 0, 0); ctx.lineCap = 'round'; fl = Math.max(W, H) * .62; }
   const proj = (p, cy, sy, cp, sp) => { const x1 = p.x * cy - p.z * sy, z1 = p.x * sy + p.z * cy, y1 = p.y * cp - z1 * sp, z2 = p.y * sp + z1 * cp; return z2 < 30 ? null : [W / 2 + x1 / z2 * fl, H / 2 + y1 / z2 * fl, z2]; };
+  let lastT = 0, envT = '';
   function draw(ts) {
-    ox += (mx - ox) * .05; oy += (my - oy) * .05;
-    const prev = yaw; yaw += (tYaw - yaw) * .075; const v = yaw - prev, streak = false;
-    pitch += (tPitch - pitch) * .05;
+    const L = Perf.lite;
+    if (!L && ts - lastT < 31) { raf = requestAnimationFrame(draw); return; } lastT = ts;   // 30 fps is plenty for a slow drift
+    if (L) { ox = oy = 0; } else { ox += (mx - ox) * .1; oy += (my - oy) * .1; }
+    const prev = yaw; yaw += (tYaw - yaw) * .14; const v = yaw - prev, streak = false;
+    pitch += (tPitch - pitch) * .1;
     const Y = yaw + ox * .16, Pt = pitch + oy * .1, cy = Math.cos(Y), sy = Math.sin(Y), cp = Math.cos(Pt), sp = Math.sin(Pt), Yb = Y - v * 2.2, cyb = Math.cos(Yb), syb = Math.sin(Yb);
     ctx.clearRect(0, 0, W, H); ctx.fillStyle = ctx.strokeStyle = `rgb(${col})`;
-    for (const p of pts) {
-      const q = proj(p, cy, sy, cp, sp); if (!q) continue; const [x, y, z] = q; if (x < -60 || x > W + 60 || y < -60 || y > H + 60) continue;
+    const tsS = ts / 1000, N = pts.length, stepN = L ? 3 : 1;
+    for (let i = 0; i < N; i += (i >= N - 14 ? 1 : stepN)) {
+      const p = pts[i];
+      const x1 = p.x * cy - p.z * sy, z1 = p.x * sy + p.z * cy, z = p.y * sp + z1 * cp; if (z < 30) continue;
+      const x = W / 2 + x1 / z * fl; if (x < -60 || x > W + 60) continue;
+      const y = H / 2 + (p.y * cp - z1 * sp) / z * fl; if (y < -60 || y > H + 60) continue;
       const depth = Math.min(1, 520 / z), rr = p.r * (p.dust ? depth * 1.4 : .55 + depth * .6);
-      ctx.globalAlpha = (p.dust ? p.a : p.a * (.55 + .45 * Math.sin(ts / 1000 * p.sp + p.tw))) * (.35 + .65 * depth);
+      ctx.globalAlpha = (p.dust || L ? p.a : p.a * (.55 + .45 * Math.sin(tsS * p.sp + p.tw))) * (.35 + .65 * depth);
+      if (rr < 1.15) { ctx.fillRect(x - rr, y - rr, rr * 2, rr * 2); continue; }   // tiny stars: a square is far cheaper than an arc
       if (streak && !p.dust) { const bq = proj(p, cyb, syb, cp, sp); if (bq) { ctx.globalAlpha *= .8; ctx.lineWidth = rr * 1.3; ctx.beginPath(); ctx.moveTo(bq[0], bq[1]); ctx.lineTo(x, y); ctx.stroke(); continue; } }
       ctx.beginPath(); ctx.arc(x, y, rr, 0, 7); ctx.fill();
     }
     ctx.globalAlpha = 1;
-    if (env) env.style.transform = `translate3d(${(-Math.sin(Y) * 15).toFixed(2)}%,${(-oy * 2).toFixed(2)}%,0) rotate(${(Math.sin(Y) * 4).toFixed(2)}deg) scale(1.05)`;
-    raf = reduceMotion.matches || document.hidden ? 0 : requestAnimationFrame(draw);
+    if (env && !L) { const tr = `translate3d(${(-Math.sin(Y) * 15).toFixed(1)}%,${(-oy * 2).toFixed(1)}%,0) rotate(${(Math.sin(Y) * 4).toFixed(1)}deg) scale(1.05)`; if (tr !== envT) env.style.transform = envT = tr; }
+    const moving = Math.abs(tYaw - yaw) > .0008 || Math.abs(tPitch - pitch) > .0008;
+    raf = reduceMotion.matches || document.hidden || (L && !moving) ? 0 : requestAnimationFrame(draw);
   }
   seed(); size(); col = css('--star') || col;
+  Perf.on(L => { size(); envT = ''; if (env && L) env.style.transform = ''; if (!raf) raf = requestAnimationFrame(draw); });
   addEventListener('resize', () => { size(); if (!raf) draw(performance.now()); });
   addEventListener('pointermove', e => { mx = e.clientX / W - .5; my = e.clientY / H - .5; }, { passive: true });
   document.addEventListener('visibilitychange', () => { if (!document.hidden && !raf) raf = requestAnimationFrame(draw); });
@@ -3844,7 +4414,7 @@ const Stars = (() => {
 })();
 
 /* ================= HOME SECTIONS: jump between full-screen slides ================= */
-const SLIDE_VIEWS = { home: ['sd.0', 'sd.1', 'sd.2'], stock: ['sd.form', 'sd.recentIn'], withdraw: ['sd.form', 'sd.recentOut'], dashboard: ['sd.dOverview', 'sd.dCharts', 'sd.dRank'], scan: ['sd.scan'] };
+const SLIDE_VIEWS = { home: ['sd.0', 'sd.1', 'sd.2'], stock: ['sd.form', 'sd.recentIn'], withdraw: ['sd.form', 'sd.recentOut'], dashboard: ['sd.dOverview', 'sd.dLoss', 'sd.dCharts', 'sd.dRank'], scan: ['sd.scan'] };
 const Slides = (() => {
   let anim = false, cool = 0, acc = 0, accT = 0;
   const list = () => SLIDE_VIEWS[S.view] ? $$(`#view-${S.view} .slide`) : [];
@@ -3906,16 +4476,20 @@ const Slides = (() => {
     list().forEach(sl => {
       let inner = sl.querySelector(':scope > .slide-in');
       if (!inner) { inner = document.createElement('div'); inner.className = 'slide-in'; while (sl.firstChild) inner.appendChild(sl.firstChild); sl.appendChild(inner); }
-      inner.style.transform = ''; if (m) return;
-      const safe = Math.max(44, sl.clientHeight * .075);   // keep clear space above/below so content never touches the screen edge
-      const k = Math.min(1, (sl.clientHeight - safe) / inner.offsetHeight);
-      if (k < 1) inner.style.transform = `scale(${k.toFixed(4)})`;
+      let tr = '';
+      if (!m) { const safe = Math.max(44, sl.clientHeight * .075);   // keep clear space above/below so content never touches the screen edge
+        const k = Math.min(1, (sl.clientHeight - safe) / inner.offsetHeight); if (k < 1) tr = `scale(${k.toFixed(4)})`; }
+      if (inner.style.transform !== tr) inner.style.transform = tr;   // offsetHeight ignores transforms, so only write when it really changes
     });
     observe();
   }
   let ro = null, fitT = 0;
   const refit = () => { clearTimeout(fitT); fitT = setTimeout(() => { if (SLIDE_VIEWS[S.view]) fit(); }, 60); };
-  const observe = () => { if (!window.ResizeObserver) return; if (ro) ro.disconnect(); ro = new ResizeObserver(refit); list().forEach(sl => { const i = sl.querySelector(':scope > .slide-in'); if (i) ro.observe(i); ro.observe(sl); }); };
+  // one observer for the whole session; it only asks for a refit when a slide really changed size
+  // (re-creating the observer on every fit made it fire again and again, a constant layout loop)
+  const roSz = new WeakMap(), roSeen = new WeakSet();
+  const onRO = es => { let ch = false; for (const e of es) { const w = Math.round(e.contentRect.width), h = Math.round(e.contentRect.height), p = roSz.get(e.target); if (!p || p[0] !== w || p[1] !== h) { if (p) ch = true; roSz.set(e.target, [w, h]); } } if (ch) refit(); };
+  const observe = () => { if (!window.ResizeObserver) return; if (!ro) ro = new ResizeObserver(onRO); list().forEach(sl => { for (const el of [sl, sl.querySelector(':scope > .slide-in')]) if (el && !roSeen.has(el)) { roSeen.add(el); ro.observe(el); } }); };
   addEventListener('resize', refit);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(refit);
   function setup() { const on = !!SLIDE_VIEWS[S.view]; document.body.classList.toggle('has-slides', on); document.body.classList.toggle('one-slide', on && SLIDE_VIEWS[S.view].length === 1); if (!on) { Stars.setPitch(0); return; } anim = false; dots(); fit(); mark(index()); }
@@ -3974,7 +4548,7 @@ const Model = (() => {
   }
   function tipHTML(it) {
     const s = st(it.id), now = Date.now(), a1 = agg(now - 30 * 864e5, now + 1, it.id), sold = a1.outQ, low = s.qty <= DB.settings.lowStock, isTop = model && model.querySelector('.bx.hl') && model.querySelector('.bx.hl').dataset.id === it.id && a1.rev > 0;
-    return `<div class="bt-head"><span class="avatar sm" style="--h:${it.hue}">${esc(initials(F(it, 'name')))}</span><div class="min0"><b>${esc(F(it, 'name'))}</b><small>${esc(it.code)} · ${esc(F(it, 'category') || t('uncat'))}</small></div></div>${isTop ? `<div class="bt-top">★ ${t('model.topLong')} · <b>${esc(fmtMoney(a1.rev))}</b></div>` : ''}
+    return `<div class="bt-head">${avatar(it, 'sm')}<div class="min0"><b>${esc(F(it, 'name'))}</b><small>${esc(it.code)} · ${esc(F(it, 'category') || t('uncat'))}</small></div></div>${isTop ? `<div class="bt-top">★ ${t('model.topLong')} · <b>${esc(fmtMoney(a1.rev))}</b></div>` : ''}
       <div class="bt-grid"><div><span>${t('bt.stock')}</span><b class="${qCls(s.qty)}">${fmtNum(s.qty)} <small>${esc(F(it, 'unit'))}</small></b></div><div><span>${t('bt.sell')}</span><b>${fmtMoney(it.sellEst)}</b></div><div><span>${t('bt.cost')}</span><b>${fmtMoney(s.avg)}</b></div><div><span>${t('bt.value')}</span><b>${fmtMoney(Math.max(0, s.qty) * s.avg)}</b></div><div><span>${t('bt.sold')}</span><b>${fmtNum(sold)}</b></div><div><span>${t('bt.loc')}</span><b>${esc(it.location || '—')}</b></div></div>
       <div class="bt-foot"><span class="chip ${s.qty <= 0 ? 'badge-empty' : low ? 'badge-warn' : 'badge-in'}">${s.qty <= 0 ? t('bt.empty') : low ? t('bt.low') : t('bt.ok')}</span><small>${t('bt.click')}</small></div>`;
   }
@@ -4007,6 +4581,7 @@ const Model = (() => {
     const k = Math.min(1, d / 300); return k * k * (3 - 2 * k);   // smoothstep over 300px
   }
   function frame(ts) {
+    if (Perf.lite && last && ts - last < 46) { raf = requestAnimationFrame(frame); return; }   // light mode: ~20 fps
     const dt = Math.min(48, ts - (last || ts)); last = ts; const fr = dt / 16.67;
     const goal = drag ? 0 : speedTarget(ts);
     spd += (goal - spd) * (1 - Math.pow(1 - (goal < spd ? .07 : .035), fr));   // ease out quicker than ease in
@@ -4063,7 +4638,7 @@ function bindShowcase(id, rows, auto) {
     if (anim) { card.classList.remove('swap'); void card.offsetWidth; card.classList.add('swap'); }
     root.querySelectorAll('.sc-li').forEach((b, j) => b.classList.toggle('on', j === i));
   };
-  const restart = () => { clearInterval(timer); if (auto) timer = setInterval(() => { if (!root.isConnected) return clearInterval(timer); if (!paused && !document.hidden) show((cur + 1) % rows.length, true); }, 5200); };
+  const restart = () => { clearInterval(timer); if (auto) timer = setInterval(() => { if (!root.isConnected) return clearInterval(timer); if (!paused && !document.hidden && root.offsetParent) show((cur + 1) % rows.length, true); }, 5200); };
   root.querySelector('.sc-list').onclick = e => { const b = e.target.closest('.sc-li'); if (!b) return; show(+b.dataset.i, true); restart(); };
   card.onclick = e => { if (e.target.closest('a')) return; location.hash = 'item/' + card.dataset.id; };
   card.onkeydown = e => { if (e.key === 'Enter') location.hash = 'item/' + card.dataset.id; };
@@ -4188,6 +4763,8 @@ function renderStock(prefId) {
         <div class="field"><span class="flabel">${t('f.time')} <em>${t('f.time.auto')}</em></span>${liveTime()}</div>
         <div class="field"><label for="stk-buy">${t('f.buy')} <em>${t('f.buy.h')}</em></label><div class="money"><span>${cur}</span><input type="number" id="stk-buy" class="input" min="0" step="0.01" placeholder="0.00"></div></div>
         <div class="field"><label for="stk-sell">${t('f.sell')}</label><div class="money"><span>${cur}</span><input type="number" id="stk-sell" class="input" min="0" step="0.01" placeholder="0.00"></div></div>
+        <div class="field exp-f"><label for="stk-exp"><span class="lb-ic">${ic('hourglass', 'ico-xs')} ${t('f.exp')}</span><em>${t('f.optional')}</em></label><input type="date" id="stk-exp" class="input date-in"></div>
+        <div class="field exp-f"><label for="stk-warn"><span class="lb-ic">${ic('bell', 'ico-xs')} ${t('f.warn')}</span></label><div class="warn-in"><input type="number" id="stk-warn" class="input" min="0" step="1" value="${expWarnDef()}"><span>${t('f.days')}</span><div class="warn-chips">${[7, 15, 30, 60].map(d => `<button type="button" class="chip" data-wd="${d}">${d}</button>`).join('')}</div></div><small class="warn-h" id="stk-warn-h"></small></div>
         <div class="field full"><label for="stk-note">${t('f.note')}</label><input id="stk-note" class="input" placeholder="${esc(t('f.note.ph'))}" autocomplete="off"></div>
       </div>
     </form>
@@ -4200,7 +4777,8 @@ function renderStock(prefId) {
   <div class="slide" data-slide="1"><div class="sec-head"><span>${t('sec.activity')}</span><h2>${t('recent.in')}</h2></div><div class="card"><div class="card-h"><h3>${ic('history')} ${t('recent.in')}</h3><a href="#list" class="btn btn-sm">${ic('list', 'ico-sm')} ${t('nav.list')}</a></div><div id="stk-recent"></div></div></div>`;
   tickClocks();
   const f = id => $('#' + id);
-  const name = f('stk-name'), cat = f('stk-cat'), unit = f('stk-unit'), vendor = f('stk-vendor'), loc = f('stk-loc'), qty = f('stk-qty'), buy = f('stk-buy'), sell = f('stk-sell'), note = f('stk-note');
+  const name = f('stk-name'), cat = f('stk-cat'), unit = f('stk-unit'), vendor = f('stk-vendor'), loc = f('stk-loc'), qty = f('stk-qty'), buy = f('stk-buy'), sell = f('stk-sell'), note = f('stk-note'), expIn = f('stk-exp'), warnIn = f('stk-warn');
+  f('stock-form').addEventListener('click', e => { const w = e.target.closest('[data-wd]'); if (!w) return; warnIn.value = w.dataset.wd; upd(); });
   let sel = null;
   const fill = it => { sel = it; if (it) { name.value = F(it, 'name'); cat.value = F(it, 'category'); unit.value = F(it, 'unit'); vendor.value = F(it, 'vendor'); loc.value = it.location || ''; buy.value = it.buyPrice ?? ''; sell.value = it.sellEst ?? ''; } upd(); };
   combo(name, { source: () => DB.items.map(it => ({ label: F(it, 'name'), sub: `${it.code} · ${fmtNum(st(it.id).qty)} ${F(it, 'unit')}`, key: it.code + ' ' + (it.num || ''), item: it })),
@@ -4220,7 +4798,10 @@ function renderStock(prefId) {
     else if (name.value.trim()) { status.className = 'chip badge-out'; status.innerHTML = `${ic('plus', 'ico-xs')} ${esc(t('st.new', { c: nextCode() }))}`; }
     else { status.className = 'chip'; status.textContent = t('st.select'); }
     const pseudo = { name: name.value.trim() || t('f.name'), category: cat.value.trim(), unit: unit.value.trim(), code: sel ? sel.code : nextCode(), location: loc.value.trim(), vendor: vendor.value.trim(), sellEst: s };
-    f('stk-label').innerHTML = labelHTML(pseudo, { lot: nextLot(Date.now()), date: Date.now(), vendor: pseudo.vendor, note: note.value.trim() }, 1, Math.max(1, q), true, labelLang()); fitLabel(f('stk-label').querySelector('.label'));
+    const expMs = ymdToMs(expIn.value), wd = Math.max(0, Math.floor(+warnIn.value || 0));
+    f('stk-warn-h').innerHTML = expMs ? (expMs < day0() ? `<b class="down">${t('f.exp.past')}</b>` : t('f.warn.on', { d: fmtDate(Math.max(day0(), expMs - wd * DAY)) })) : t('f.warn.none');
+    warnIn.closest('.field').classList.toggle('dim', !expMs); $$('[data-wd]', f('stock-form')).forEach(b => b.classList.toggle('on', +b.dataset.wd === wd));
+    f('stk-label').innerHTML = labelHTML(pseudo, { lot: nextLot(Date.now()), date: Date.now(), vendor: pseudo.vendor, note: note.value.trim(), exp: expMs }, 1, Math.max(1, q), true, labelLang()); fitLabel(f('stk-label').querySelector('.label'));
     const cost = q * b, rev = q * s, pr = rev - cost;
     f('stk-sum').innerHTML = `<div class="sum-row"><span>${t('sum.qty')}</span><b>${fmtNum(q)} ${esc(pseudo.unit)}</b></div><div class="sum-row"><span>${t('sum.cost')}</span><b>${fmtMoney(cost)}</b></div><div class="sum-row"><span>${t('sum.estRev')}</span><b>${fmtMoney(rev)}</b></div><div class="sum-row sum-total"><span>${t('sum.estProfit')}</span><b class="${pr >= 0 ? 'up' : 'down'}">${fmtMoney(pr)}</b></div><div class="sum-row"><span>${t('sum.estMargin')}</span><b>${rev ? (pr / rev * 100).toFixed(1) + '%' : '—'}</b></div>`;
   }
@@ -4233,7 +4814,7 @@ function renderStock(prefId) {
     let it = sel;
     if (!it) it = createItem({ name: nm, ...fields, buyPrice: b, sellEst: s });
     else { setField(it, 'category', fields.category); setField(it, 'unit', fields.unit); it.location = fields.location; }
-    const x = doStockIn({ item: it, qty: q, buyPrice: b, sellEst: s, vendor: fields.vendor, note: note.value.trim() });
+    const x = doStockIn({ item: it, qty: q, buyPrice: b, sellEst: s, vendor: fields.vendor, note: note.value.trim(), exp: ymdToMs(expIn.value), warn: Math.max(0, Math.floor(+warnIn.value || 0)) });
     const [cx, cy] = centerOf(e.currentTarget); FX.confetti(cx, cy);
     toast(t('toast.stocked', { q, n: F(it, 'name') }));
     renderStock(); stagger($('#view-stock'));
@@ -4246,22 +4827,32 @@ function renderStock(prefId) {
 
 /* ================= STOCK LIST ================= */
 function renderList() {
+  if (!S.list.su) document.body.classList.remove('su-fit');
   const v = $('#view-list');
   if (v.dataset.built !== LANG) {
-    v.innerHTML = `<div class="page-head"><div><span class="eyebrow"><i>✦</i>${t('list.eyebrow')}</span><h2>${t('list.title')}</h2><p id="ls-sub"></p></div><div class="head-actions"><a href="#scan" class="btn">${ic('scan')} ${t('nav.scan')}</a><a href="#stock" class="btn btn-primary">${ic('plus')} ${t('btn.addStock')}</a></div></div>
-    <div class="toolbar"><div class="search"><span>${ic('search')}</span><input class="input" id="ls-q" placeholder="${esc(t('list.search'))}"></div>
+    v.innerHTML = `<div class="page-head"><div><span class="eyebrow"><i>✦</i>${t('list.eyebrow')}</span><h2>${t('list.title')}</h2><p id="ls-sub"></p></div><div class="head-actions"><button class="btn btn-su" id="ls-su" type="button"></button><a href="#scan" class="btn">${ic('scan')} ${t('nav.scan')}</a><a href="#stock" class="btn btn-primary">${ic('plus')} ${t('btn.addStock')}</a></div></div>
+    <div class="toolbar"><div class="search"><span>${ic('search')}</span><input class="input" id="ls-q" placeholder="${esc(t('list.search'))}" autocomplete="off"><button type="button" class="search-scan" id="ls-scan" title="${esc(t('su.scanBtn'))}"><i></i>${ic('scan', 'ico-sm')}<b>${t('su.scanBtn')}</b></button></div>
     <select class="select" id="ls-cat" aria-label="category"></select>
-    <select class="select" id="ls-sort" aria-label="sort">${['name', 'stockAsc', 'stockDesc', 'value', 'profit', 'recent'].map(k => `<option value="${k}">${t('sort.' + k)}</option>`).join('')}</select>
-    <button class="btn" id="ls-low">${ic('alert', 'ico-sm')} ${t('list.low')}</button></div>
+    <select class="select" id="ls-sort" aria-label="sort">${['name', 'stockAsc', 'stockDesc', 'expSoon', 'value', 'profit', 'recent'].map(k => `<option value="${k}">${t('sort.' + k)}</option>`).join('')}</select>
+    </div>
+    <div class="st-chips" id="ls-st"></div>
     <div id="ls-rows"></div>`;
     v.dataset.built = LANG;
     $('#ls-q').value = S.list.q; $('#ls-sort').value = S.list.sort;
-    $('#ls-q').oninput = e => { S.list.q = e.target.value; listRows(); };
+    $('#ls-q').oninput = e => { S.list.q = e.target.value; SU.page = 0; listRows(); };
+    // Stock Update: a scanned QR (handheld scanner types the code + Enter) or a typed code jumps straight to that item
+    $('#ls-q').onkeydown = e => { if (e.key !== 'Enter' || !S.list.su) return; const v = e.target.value.trim(); if (!v) return; e.preventDefault();
+      const it = findItemByCode(v) || (SU.arr && SU.arr.length === 1 ? SU.arr[0] : null);
+      if (it) suLocate(it); else { beep(false); toast(t('scan.notFound', { c: v }), 'warn'); const b = e.target.closest('.search'); b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake'); e.target.select(); } };
+    $('#ls-scan').onclick = () => openCamScan({ onItem: suLocate, title: t('su.scanT') });
     $('#ls-cat').onchange = e => { S.list.cat = e.target.value; listRows(true); };
     $('#ls-sort').onchange = e => { S.list.sort = e.target.value; listRows(true); };
-    $('#ls-low').onclick = () => { S.list.low = !S.list.low; listRows(true); };
+    $('#ls-st').onclick = e => { const b = e.target.closest('[data-st]'); if (!b) return; S.list.st = S.list.st === b.dataset.st && b.dataset.st !== 'all' ? 'all' : b.dataset.st; SU.page = 0; listRows(true); };
+    $('#ls-su').onclick = () => suToggle();
     if (!v.dataset.bound) v.dataset.bound = 1, v.addEventListener('click', e => {
       // find the row even if the browser's hit-test missed it (Safari / Mac with transformed glass rows)
+      const sc = e.target.closest('.su-card[data-id]'); if (sc) { suSelect(sc.dataset.id); return; }
+      if (e.target.closest('.su-split')) return;
       const row = e.target.closest('.row[data-id]') || (e.target.closest('button,a,input,select,textarea,.modal') ? null : [...v.querySelectorAll('.row[data-id]')].find(r => { const q = r.getBoundingClientRect(); return e.clientX >= q.left && e.clientX <= q.right && e.clientY >= q.top && e.clientY <= q.bottom; }));
       if (!row) return; const it = itemById(row.dataset.id); if (!it) return;
       const b = e.target.closest('[data-act]'); const act = b ? b.dataset.act : 'open';
@@ -4280,26 +4871,32 @@ function renderList() {
   listRows(true);
 }
 function listRows(anim) {
-  $('#ls-low').classList.toggle('on', S.list.low);
+  const sb = $('#ls-su'); sb.classList.toggle('on', !!S.list.su);
+  $('#view-list').classList.toggle('su-on', !!S.list.su); $('#ls-q').placeholder = t(S.list.su ? 'su.search' : 'list.search');
+  sb.innerHTML = S.list.su ? `<span class="su-ic">${ic('chevL')}</span><span class="su-tx"><b>${t('su.back')}</b></span>` : `<span class="su-shine"></span><span class="su-ic">${ic('clipcheck')}</span><span class="su-tx"><b>${t('su.btn')}</b><small>${t('su.btnSub')}</small></span>`;
   const box = $('#ls-rows');
   if (!DB.items.length) { box.innerHTML = starterHTML(); return; }
   const q = S.list.q.trim().toLowerCase(), SS = states();
   let arr = DB.items.filter(it => {
     const s = SS[it.id] || st(it.id);
     if (S.list.cat !== 'all' && F(it, 'category') !== S.list.cat) return false;
-    if (S.list.low && s.qty > DB.settings.lowStock) return false;
+    if (S.list.st && S.list.st !== 'all' && !stMatch(it, s, S.list.st)) return false;
     if (q && ![F(it, 'name'), it.code, F(it, 'vendor'), it.location, F(it, 'category')].join(' ').toLowerCase().includes(q)) return false;
     return true;
   });
   const g = it => SS[it.id] || st(it.id);
   const sorters = { name: (a, b) => F(a, 'name').localeCompare(F(b, 'name'), LOC()), stockAsc: (a, b) => g(a).qty - g(b).qty, stockDesc: (a, b) => g(b).qty - g(a).qty, value: (a, b) => g(b).qty * g(b).avg - g(a).qty * g(a).avg, profit: (a, b) => g(b).profit - g(a).profit, recent: (a, b) => g(b).last - g(a).last };
+  sorters.expSoon = (a, b) => (nextExp(a.id) || 9e15) - (nextExp(b.id) || 9e15) || sorters.name(a, b);
   arr.sort(sorters[S.list.sort] || sorters.name);
+  stChips();
+  if (S.list.su) { suLeft(box, arr, anim); return; }
   if (!arr.length) { box.innerHTML = `<div class="empty-sm">${ic('search')} ${t('list.none')}</div>`; return; }
   const maxQ = Math.max(...DB.items.map(i => g(i).qty), 1);
   box.innerHTML = `<div class="rows"><div class="row row-head"><span>${t('col.item')}</span><span>${t('col.stock')}</span><span>${t('col.avg')}</span><span>${t('col.sell')}</span><span>${t('col.value')}</span><span></span></div>${arr.map(it => {
     const s = g(it), low = s.qty <= DB.settings.lowStock, empty = s.qty <= 0;
-    return `<div class="row ${empty ? 'row-empty' : ''}" data-id="${it.id}"><div class="who"><span class="avatar" style="--h:${it.hue}">${esc(initials(F(it, 'name')))}</span><div class="min0"><b>${esc(F(it, 'name'))}</b><small>${esc(it.code)} · ${esc(F(it, 'category'))}${it.location ? ' · ' + esc(it.location) : ''}</small></div></div>
-    <div class="stockbar"><span class="cell-l">${t('col.stock')}</span><b class="num ${qCls(s.qty)}">${fmtNum(s.qty)}</b> <small>${esc(F(it, 'unit'))}</small> ${empty ? `<span class="chip badge-empty">${t('st.empty')}</span>` : low ? `<span class="chip badge-warn">${t('low.badge')}</span>` : ''}<div class="track ${empty ? 'empty' : low ? 'low' : ''}"><i style="width:${Math.max(2, Math.max(0, s.qty) / maxQ * 100)}%"></i></div></div>
+    const al = itemAlert(it.id);
+    return `<div class="row ${empty ? 'row-empty' : ''} ${al ? 'al' : ''}" data-id="${it.id}" ${al ? `style="--alc:${NCK[al.k].c}"` : ''}><div class="who">${avatar(it, '')}<div class="min0"><b>${esc(F(it, 'name'))}</b><small>${esc(it.code)} · ${esc(F(it, 'category'))}${it.location ? ' · ' + esc(it.location) : ''}</small></div></div>
+    <div class="stockbar"><span class="cell-l">${t('col.stock')}</span><b class="num ${qCls(s.qty)}">${fmtNum(s.qty)}</b> <small>${esc(F(it, 'unit'))}</small> ${empty ? `<span class="chip badge-empty">${t('st.empty')}</span>` : low ? `<span class="chip badge-warn">${t('low.badge')}</span>` : ''}${alerts().filter(a => a.it === it && (a.k === 'expired' || a.k === 'soon')).map(a => `<span class="chip exp-chip" style="--alc:${NCK[a.k].c}">${ic('hourglass', 'ico-xs')} ${a.k === 'expired' ? t('nc.k.expired') + ' ' + fmtNum(a.q) : t('exp.in', { d: a.d })}</span>`).join('')}<div class="track ${empty ? 'empty' : low ? 'low' : ''}"><i style="width:${Math.max(2, Math.max(0, s.qty) / maxQ * 100)}%"></i></div></div>
     <div><span class="cell-l">${t('col.avg')}</span><span class="num">${fmtMoney(s.avg)}</span></div>
     <div><span class="cell-l">${t('col.sell')}</span><span class="num">${fmtMoney(it.sellEst)}</span></div>
     <div><span class="cell-l">${t('col.value')}</span><span class="num">${fmtMoney(Math.max(0, s.qty) * s.avg)}</span></div>
@@ -4345,7 +4942,7 @@ function renderWithdraw(prefId) {
   function choose(it) {
     sel = it; f('wd-item').value = F(it, 'name'); qty.value = 1; link.set(it.sellEst || '');
     const s = st(it.id);
-    f('wd-sel').innerHTML = `<div class="sel-item"><span class="avatar lg" style="--h:${it.hue}">${esc(initials(F(it, 'name')))}</span><div class="min0"><b>${esc(F(it, 'name'))}</b><span class="chip mono">${esc(it.code)}</span> <span class="chip">${esc(F(it, 'category'))}</span></div><div class="sel-stats">${t('i.stock')}<br><b class="${qCls(s.qty)}">${fmtNum(s.qty)}</b> ${esc(F(it, 'unit'))}</div></div>`;
+    f('wd-sel').innerHTML = `<div class="sel-item">${avatar(it, 'lg')}<div class="min0"><b>${esc(F(it, 'name'))}</b><span class="chip mono">${esc(it.code)}</span> <span class="chip">${esc(F(it, 'category'))}</span></div><div class="sel-stats">${t('i.stock')}<br><b class="${qCls(s.qty)}">${fmtNum(s.qty)}</b> ${esc(F(it, 'unit'))}</div></div>`;
     upd();
   }
   f('wd-chips').onclick = e => { const b = e.target.closest('button'); if (!b || !sel) return; link.set((sel.sellEst * (1 + (+b.dataset.k) / 100)).toFixed(2).replace(/\.00$/, '')); upd(); };
@@ -4404,14 +5001,15 @@ function renderDashboard() {
   <div class="sec-head dash-sc-head"><span>${t('sc.k')}</span><h2>${t('sc.tDash')}</h2></div>
   ${showcaseHTML('sc-dash', scRows)}
   </div></div>
-  <div class="slide" data-slide="1"><div class="slide-in"><div class="sec-head"><span>${t('sec.charts')}</span><h2>${esc(P.label(type, anchor))}</h2></div>
+  <div class="slide" data-slide="1"><div class="slide-in">${lossSection('dl', a, bs, P.label(type, anchor), prev)}</div></div>
+  <div class="slide" data-slide="2"><div class="slide-in"><div class="sec-head"><span>${t('sec.charts')}</span><h2>${esc(P.label(type, anchor))}</h2></div>
   <div class="grid-2 mb">
     <div class="card"><div class="card-h"><h3>${ic('activity')} ${t('ch.move')}</h3><small>${t('ch.move.s')}</small></div><div class="chart-box"><canvas id="c-dash-line"></canvas></div></div>
     <div class="card"><div class="card-h"><h3>${ic('tag')} ${t('ch.cat')}</h3><small>${t('ch.cat.s')}</small></div><div class="chart-box"><canvas id="c-dash-donut"></canvas></div></div>
   </div>
   <div class="card mb"><div class="card-h"><h3>${ic('coins')} ${t('ch.money')}</h3></div><div class="chart-box"><canvas id="c-dash-bar"></canvas></div></div>
   </div></div>
-  <div class="slide" data-slide="2"><div class="slide-in"><div class="sec-head"><span>${t('sec.rankings')}</span><h2>${t('sec.rankingsT')}</h2></div>
+  <div class="slide" data-slide="3"><div class="slide-in"><div class="sec-head"><span>${t('sec.rankings')}</span><h2>${t('sec.rankingsT')}</h2></div>
   <div class="dash-ranks">
   <div class="grid-2 mb">
     <div class="card"><div class="card-h"><h3>${ic('activity')} ${t('r.act')}</h3><div class="seg" data-order="act"><button data-o="desc" class="${S.dashOrder.act === 'desc' ? 'on' : ''}">${t('r.most')}</button><button data-o="asc" class="${S.dashOrder.act === 'asc' ? 'on' : ''}">${t('r.least')}</button></div></div><p class="card-note">${t('r.act.n')}</p><div class="ranks" id="r-act"></div></div>
@@ -4439,9 +5037,10 @@ function renderDashboard() {
   $('#r-pop').innerHTML = rankList(pop, r => r.outQ, n => fmtNum(n) + ' ' , `linear-gradient(90deg,${c.pink},${c.tang})`, r => t('r.sold', { q: fmtNum(r.outQ) + ' ' + F(r.it, 'unit'), r: fmtMoney(r.rev) }));
   $('#r-slow').innerHTML = rankList(slow, r => r.outQ, n => fmtNum(n), c.ink3, r => r.outQ ? t('r.slowSub', { q: fmtNum(r.outQ), s: fmtNum(r.stock) }) : t('r.noSales', { q: fmtNum(r.stock) }), false);
   const lows = DB.items.map(it => ({ it, q: st(it.id).qty })).filter(x => x.q <= DB.settings.lowStock).sort((x, y) => x.q - y.q);
-  $('#dash-low').innerHTML = lows.length ? lows.map(({ it, q }) => `<div class="low-row"><span class="avatar sm" style="--h:${it.hue}">${esc(initials(F(it, 'name')))}</span><div class="min0"><b>${esc(F(it, 'name'))}</b> <small class="muted mono">${esc(it.code)}</small></div><span class="chip ${q <= 0 ? 'badge-empty' : 'badge-warn'}">${q <= 0 ? t('st.empty') + ' · ' : ''}${fmtNum(q)} ${esc(F(it, 'unit'))}</span><a class="btn btn-sm btn-sage" href="#stock/${it.id}">${ic('in', 'ico-sm')} ${t('btn.restock')}</a></div>`).join('') : `<div class="empty-sm">${ic('check')} ${t('low.none')}</div>`;
+  $('#dash-low').innerHTML = lows.length ? lows.map(({ it, q }) => `<div class="low-row">${avatar(it, 'sm')}<div class="min0"><b>${esc(F(it, 'name'))}</b> <small class="muted mono">${esc(it.code)}</small></div><span class="chip ${q <= 0 ? 'badge-empty' : 'badge-warn'}">${q <= 0 ? t('st.empty') + ' · ' : ''}${fmtNum(q)} ${esc(F(it, 'unit'))}</span><a class="btn btn-sm btn-sage" href="#stock/${it.id}">${ic('in', 'ico-sm')} ${t('btn.restock')}</a></div>`).join('') : `<div class="empty-sm">${ic('check')} ${t('low.none')}</div>`;
 
   const labels = bs.map(b => b.label);
+  lossCharts('dl', a, bs);
   const lo = baseOpts(c);
   mkChart('c-dash-line', { type: 'line', data: { labels, datasets: [
     { label: t('ch.in'), data: bs.map(b => b.inQ), borderColor: c.mint, backgroundColor: grad(c.mint), fill: true, tension: .42, cubicInterpolationMode: 'monotone', borderWidth: 3, pointRadius: 0, pointHoverRadius: 7, pointHoverBorderWidth: 3, pointHoverBorderColor: c.stroke },
@@ -4459,6 +5058,37 @@ function renderDashboard() {
   donut('c-dash-donut', ce.map(x => x[0]), ce.map(x => +x[1].toFixed(2)), ce.map((_, i) => palette[i % palette.length]), { text: shortMoney(ce.reduce((s2, x) => s2 + x[1], 0)), label: t('k.profit'), fmt: fmtMoney });
 }
 
+/* ================= LOSS (missing / broken / expired) ================= */
+function lossSection(id, a, bs, label, prev, it) {
+  const L = a.loss || 0, by = a.byReason || {}, rs = Object.keys(REASONS);
+  const life = it ? st(it.id) : null;
+  const tiles = rs.map(r => { const v = by[r] || { q: 0, v: 0, n: 0 }; const pc = L ? v.v / L * 100 : 0;
+    return `<div class="ls-tile" style="--rc:${REASONS[r].c}"><span class="ls-ic">${ic(REASONS[r].ic, 'ico-sm')}</span><div class="min0"><small>${t('su.r.' + r)}</small><b>${v.v ? '−' : ''}${fmtMoney(v.v)}</b><em>${t('ls.qn', { q: fmtNum(v.q), n: fmtNum(v.n) })}</em></div><div class="ls-pc"><i style="width:${pc}%"></i></div><span class="ls-pcn">${L ? fmtPct(pc) : '—'}</span></div>`; }).join('');
+  const share = a.rev ? L / a.rev * 100 : NaN, net = (a.profit || 0) - L;
+  const hero = `<div class="ls-hero"><div class="ls-total"><span class="ls-k">${ic('trendDown', 'ico-sm')} ${t('ls.total')}</span><b class="ls-big">${L ? '−' : ''}${fmtMoney(L)}</b><span class="ls-sub">${t('ls.units', { q: fmtNum(a.adjQ || 0) })}${prev ? ' · ' + lossDelta(L, prev.loss || 0) : ''}</span>
+    <div class="ls-mini"><div><small>${t('ls.share')}</small><b>${isFinite(share) ? fmtPct(share) : '—'}</b></div><div><small>${t('ls.net')}</small><b class="${net >= 0 ? 'up' : 'down'}">${fmtMoney(net)}</b></div>${life ? `<div><small>${t('ls.life')}</small><b class="down">${life.loss ? '−' : ''}${fmtMoney(life.loss || 0)}</b></div>` : ''}</div></div><div class="ls-tiles">${tiles}</div></div>`;
+  const recent = DB.txns.filter(x => x.type === 'adj' && (!it || x.itemId === it.id)).sort((x, y) => y.date - x.date).slice(0, it ? 6 : 8);
+  if (it) return `<div class="card mb loss-card" id="${id}-card"><div class="card-h"><h3>${ic('broken')} ${t('ls.title')}</h3><small>${esc(label)}</small></div>${hero}
+    <div class="grid-2 ls-grid"><div><h4 class="ls-h4">${t('ls.trend')}</h4><div class="chart-box sm"><canvas id="c-${id}-bar"></canvas></div></div><div><h4 class="ls-h4">${t('ls.recent')}</h4><div class="ls-recent">${lossRows(recent, false)}</div></div></div></div>`;
+  return `<div class="sec-head ls-head"><span>${t('ls.k')}</span><h2>${t('ls.titleL')}</h2><a class="btn btn-su sm" href="#list" data-su-open><span class="su-ic">${ic('clipcheck', 'ico-sm')}</span><span class="su-tx"><b>${t('su.btn')}</b></span></a></div><div class="card mb loss-card">${hero}</div>
+  <div class="grid-2 ls-g2"><div class="card"><div class="card-h"><h3>${ic('activity')} ${t('ls.trend')}</h3><small>${esc(label)}</small></div><div class="chart-box sm"><canvas id="c-${id}-bar"></canvas></div></div>
+  <div class="card"><div class="card-h"><h3>${ic('alert')} ${t('ls.top')}</h3><small>${t('ls.top.s')}</small></div><div class="ranks ls-top" id="${id}-top"></div></div></div>`;
+}
+function lossDelta(cur, prev) { if (!prev) return cur ? `<span class="down">${t('delta.new')}</span>` : `<span class="muted">${t('delta.same')}</span>`; const d = (cur - prev) / prev * 100; return `<span class="${d > 0 ? 'down' : 'up'}">${d >= 0 ? '▲' : '▼'} ${Math.abs(d).toFixed(1)}%</span> <span class="muted">${t('delta.vs')}</span>`; }
+function lossRows(L, withItem) {
+  if (!L.length) return `<div class="empty-sm">${ic('check')} ${t('ls.none')}</div>`;
+  return L.map(x => { const it = itemById(x.itemId), R = REASONS[x.reason] || REASONS.missing; return `<div class="sur-row${it ? ' tx-link' : ''}" style="--rc:${R.c}"${it ? ` data-goto-item="${it.id}"` : ''}><span class="sur-i">${ic(R.ic, 'ico-sm')}</span><div class="min0"><b>${withItem && it ? esc(F(it, 'name')) : t('su.r.' + x.reason)}</b><small>${withItem ? t('su.r.' + x.reason) + ' · ' : ''}${fmtDT(x.date)}${x.note ? ' · ' + esc(x.note) : ''}</small></div><span class="sur-q">−${fmtNum(x.qty)}<small>−${fmtMoney(x.qty * x.unitCost)}</small></span></div>`; }).join('');
+}
+function lossCharts(id, a, bs, it) {
+  const c = C(), rs = Object.keys(REASONS);
+  const bo = baseOpts(c); bo.plugins.tooltip.callbacks = { label: x => ` ${x.dataset.label}: ${fmtMoney(x.parsed.y)}` }; bo.scales.y.ticks.callback = shortMoney; bo.scales.x.stacked = true; bo.scales.y.stacked = true;
+  mkChart(`c-${id}-bar`, { type: 'bar', data: { labels: bs.map(b => b.label), datasets: rs.map(r => ({ label: t('su.r.' + r), data: bs.map(b => +(b['l_' + r] || 0).toFixed(2)), backgroundColor: REASONS[r].c, borderColor: c.stroke, borderWidth: 1.5, borderRadius: 6, maxBarThickness: 22 })) }, options: bo });
+  const top = $(`#${id}-top`); if (!top) return;
+  const rows = Object.entries(a.per).filter(([, p]) => p.loss > 0).map(([iid, p]) => ({ it: itemById(iid), ...p })).filter(r => r.it).sort((x, y) => y.loss - x.loss).slice(0, it ? 8 : 5);
+  const sub = r => { const n = Object.values(r.byReason || {}).reduce((s2, v) => s2 + v.n, 0);
+    return `${Object.keys(REASONS).filter(k => r.byReason && r.byReason[k]).map(k => `<span class="ls-rc" style="--rc:${REASONS[k].c}">${ic(REASONS[k].ic, 'ico-xs')}${t('su.r.' + k)} ${fmtNum(r.byReason[k].q)}</span>`).join('')}${n >= 2 ? `<span class="ls-rep">${ic('alert', 'ico-xs')} ${t('ls.times', { n })}</span>` : ''}`; };
+  top.innerHTML = rankList(rows, r => r.loss, v => '−' + fmtMoney(v), `linear-gradient(90deg,${REASONS.expired.c},${REASONS.broken.c})`, sub);
+}
 /* ================= ITEM DASHBOARD ================= */
 function renderItem() {
   const v = $('#view-item'); const it = itemById(S.item.id);
@@ -4466,7 +5096,7 @@ function renderItem() {
   const s = st(it.id), low = s.qty <= DB.settings.lowStock, qr = qrURL(it.code);
   v.innerHTML = `<a href="#list" class="back">${ic('chevL', 'ico-sm')} ${t('item.back')}</a>
   <div class="card item-hero">
-    <span class="avatar xl" style="--h:${it.hue}">${esc(initials(F(it, 'name')))}</span>
+    ${avatar(it, 'xl')}
     <div class="min0">
       <div class="meta"><span class="chip mono">${esc(it.code)}</span><span class="chip">${ic('tag', 'ico-xs')} ${esc(F(it, 'category') || t('uncat'))}</span>${F(it, 'vendor') ? `<span class="chip">${esc(F(it, 'vendor'))}</span>` : ''}${it.location ? `<span class="chip">${ic('pin', 'ico-xs')} ${esc(it.location)}</span>` : ''}</div>
       <h2>${esc(F(it, 'name'))}</h2>
@@ -4476,11 +5106,13 @@ function renderItem() {
         <div class="istat"><span>${t('i.sell')}</span><b>${fmtMoney(it.sellEst)}</b></div>
         <div class="istat"><span>${t('i.value')}</span><b>${fmtMoney(Math.max(0, s.qty) * s.avg)}</b></div>
         <div class="istat"><span>${t('i.lifeProfit')}</span><b class="${s.profit >= 0 ? 'up' : 'down'}">${fmtMoney(s.profit)}</b></div>
+        ${s.loss ? `<div class="istat loss"><span>${t('i.loss')}</span><b class="down">−${fmtMoney(s.loss)}</b></div>` : ''}
       </div>
       <div class="ih-actions">
         <button class="btn btn-sage" data-ia="in">${ic('in')} ${t('btn.stockIn')}</button>
         <button class="btn btn-primary" data-ia="out">${ic('out')} ${t('btn.withdraw')}</button>
         <button class="btn" data-ia="print">${ic('printer')} ${t('btn.print')}</button>
+        <button class="btn btn-su sm" data-ia="su"><span class="su-ic">${ic('clipcheck', 'ico-sm')}</span><span class="su-tx"><b>${t('su.btn')}</b></span></button>
         <button class="btn" data-ia="edit">${ic('edit')} ${t('btn.edit')}</button>
         <button class="icon-btn" data-ia="del" title="${esc(t('btn.delete'))}">${ic('trash')}</button>
       </div>
@@ -4494,6 +5126,7 @@ function renderItem() {
   $('#it-tabs').onclick = e => { const b = e.target.closest('button'); if (!b) return; S.item.tab = b.dataset.tab; rerender(); };
   $$('[data-ia]', v).forEach(b => b.onclick = async () => {
     const a = b.dataset.ia;
+    if (a === 'su') { S.list.su = true; S.list.q = ''; S.list.cat = 'all'; S.list.st = 'all'; SU.id = it.id; SU.page = -1; SU.reason = null; SU.qty = 1; SU.note = ''; $('#view-list').dataset.built = ''; location.hash = 'list'; return; }
     if (a === 'in') openItemPopup(it, 'in'); else if (a === 'out') openItemPopup(it, 'out'); else if (a === 'print') openPrintModal(it); else if (a === 'edit') openEdit(it);
     else if (a === 'del') { location.hash = 'list'; setTimeout(() => deleteItemFlow(it), 450); }
   });
@@ -4503,7 +5136,7 @@ function itemOverview(it) {
   const { type, anchor } = S.item; const [s, e] = P.range(type, anchor); const c = C();
   const a = agg(+s, +e, it.id); const prev = type === 'all' ? null : (() => { const [ps, pe] = P.range(type, P.shift(type, anchor, -1)); return agg(+ps, +pe, it.id); })();
   const bs = series(type, anchor, it.id); const now = Date.now();
-  let lvl = stockAt(it.id, +s); const levels = bs.map(b => { if (b.a > now) return null; lvl += b.inQ - b.outQ; return lvl; });
+  let lvl = stockAt(it.id, +s); const levels = bs.map(b => { if (b.a > now) return null; lvl += b.inQ - b.outQ - (b.adjQ || 0); return lvl; });
   let disc = 0, eq = 0, prem = 0, estSum = 0, actSum = 0;
   for (const x of DB.txns) { if (x.itemId !== it.id || x.type !== 'out' || x.date < +s || x.date >= +e) continue; const d = x.sellEst ? (x.sellPrice - x.sellEst) / x.sellEst : 0; if (Math.abs(d) < .0005) eq += x.qty; else if (d < 0) disc += x.qty; else prem += x.qty; if (x.sellEst) { estSum += x.sellEst * x.qty; actSum += x.sellPrice * x.qty; } }
   const vsEst = estSum ? (actSum - estSum) / estSum * 100 : NaN;
@@ -4520,11 +5153,13 @@ function itemOverview(it) {
     <div class="card"><div class="card-h"><h3>${ic('activity')} ${t('ch.itemMove')}</h3></div><div class="chart-box"><canvas id="c-it-line"></canvas></div></div>
     <div class="card"><div class="card-h"><h3>${ic('tag')} ${t('ch.mix')}</h3><small>${t('ch.mix.s')}</small></div><div class="chart-box"><canvas id="c-it-donut"></canvas></div></div>
   </div>
+  ${lossSection('il', a, bs, P.label(type, anchor), prev, it)}
   <div class="grid-2">
     <div class="card"><div class="card-h"><h3>${ic('coins')} ${t('ch.money')}</h3></div><div class="chart-box"><canvas id="c-it-bar"></canvas></div></div>
     <div class="card"><div class="card-h"><h3>${ic('trendUp')} ${t('ch.price')}</h3><small>${t('ch.price.s')}</small></div><div class="chart-box"><canvas id="c-it-price"></canvas></div></div>
   </div>`;
   const labels = bs.map(b => b.label);
+  lossCharts('il', a, bs, it);
   const lo = baseOpts(c); lo.scales.y1 = { position: 'right', beginAtZero: true, grid: { display: false }, border: { display: false }, ticks: { color: c.sky, maxTicksLimit: 6 } };
   mkChart('c-it-line', { type: 'line', data: { labels, datasets: [
     { label: t('ch.in'), data: bs.map(b => b.inQ), borderColor: c.mint, backgroundColor: grad(c.mint), fill: true, tension: .42, cubicInterpolationMode: 'monotone', borderWidth: 3, pointRadius: 0, pointHoverRadius: 7 },
@@ -4549,19 +5184,170 @@ function itemHistory(it) {
   const [s, e] = P.range(S.item.type, S.item.anchor);
   const all = DB.txns.filter(x => x.itemId === it.id && x.date >= +s && x.date < +e);
   let tx = S.item.filter === 'all' ? all : all.filter(x => x.type === S.item.filter); tx.sort((a, b) => b.date - a.date);
-  let inQ = 0, inV = 0, outQ = 0, outV = 0, pr = 0; for (const x of all) { if (x.type === 'in') { inQ += x.qty; inV += x.qty * x.buyPrice; } else { outQ += x.qty; outV += x.qty * x.sellPrice; pr += (x.sellPrice - x.unitCost) * x.qty; } }
-  $('#item-body').innerHTML = `<div class="card"><div class="card-h"><div class="seg" id="hist-f">${[['all', t('h.all')], ['in', t('type.in')], ['out', t('type.out')]].map(([k, l]) => `<button data-f="${k}" class="${S.item.filter === k ? 'on' : ''}">${l}</button>`).join('')}</div><div class="head-actions"><span class="chip">${t('h.records', { n: fmtNum(tx.length) })}</span><button class="btn btn-sm" id="hist-csv">${ic('download', 'ico-sm')} CSV</button></div></div>
-  <div class="hist-sum"><span class="chip badge-in">${ic('in', 'ico-xs')} ${esc(t('h.bought', { q: fmtNum(inQ), v: fmtMoney(inV) }))}</span><span class="chip badge-out">${ic('out', 'ico-xs')} ${esc(t('h.sold', { q: fmtNum(outQ), v: fmtMoney(outV) }))}</span><span class="chip badge-violet">${ic('trendUp', 'ico-xs')} ${esc(t('h.profit', { v: fmtMoney(pr) }))}</span>${tx.length > 500 ? `<span class="chip">${t('h.more')}</span>` : ''}</div>
+  let inQ = 0, inV = 0, outQ = 0, outV = 0, pr = 0, adQ = 0, adV = 0; for (const x of all) { if (x.type === 'in') { inQ += x.qty; inV += x.qty * x.buyPrice; } else if (x.type === 'adj') { adQ += x.qty; adV += x.qty * (x.unitCost || 0); } else { outQ += x.qty; outV += x.qty * x.sellPrice; pr += (x.sellPrice - x.unitCost) * x.qty; } }
+  $('#item-body').innerHTML = `<div class="card"><div class="card-h"><div class="seg" id="hist-f">${[['all', t('h.all')], ['in', t('type.in')], ['out', t('type.out')], ['adj', t('type.adj')]].map(([k, l]) => `<button data-f="${k}" class="${S.item.filter === k ? 'on' : ''}">${l}</button>`).join('')}</div><div class="head-actions"><span class="chip">${t('h.records', { n: fmtNum(tx.length) })}</span><button class="btn btn-sm" id="hist-csv">${ic('download', 'ico-sm')} CSV</button></div></div>
+  <div class="hist-sum"><span class="chip badge-in">${ic('in', 'ico-xs')} ${esc(t('h.bought', { q: fmtNum(inQ), v: fmtMoney(inV) }))}</span><span class="chip badge-out">${ic('out', 'ico-xs')} ${esc(t('h.sold', { q: fmtNum(outQ), v: fmtMoney(outV) }))}</span><span class="chip badge-violet">${ic('trendUp', 'ico-xs')} ${esc(t('h.profit', { v: fmtMoney(pr) }))}</span>${adQ ? `<span class="chip badge-empty">${ic('broken', 'ico-xs')} ${esc(t('h.adjusted', { q: fmtNum(adQ), v: fmtMoney(adV) }))}</span>` : ''}${tx.length > 500 ? `<span class="chip">${t('h.more')}</span>` : ''}</div>
   ${txTable(tx.slice(0, 500), { item: false })}</div>`;
   $('#hist-f').onclick = ev => { const b = ev.target.closest('button'); if (!b) return; S.item.filter = b.dataset.f; itemHistory(it); stagger($('#item-body')); };
   $('#hist-csv').onclick = () => exportCSV(it, tx);
 }
 
 /* ================= POPUPS ================= */
+/* ================= STOCK UPDATE (split view) ================= */
+function suToggle() {
+  const box = $('#ls-rows'); if (!box) return; box.classList.remove('su-in'); box.classList.add('su-out');
+  setTimeout(() => { S.list.su = !S.list.su; SU.page = S.list.su ? -1 : 0; if (!S.list.su) { SU.id = null; document.body.classList.remove('su-fit'); } box.innerHTML = ''; listRows(true); box.classList.remove('su-out'); box.classList.add('su-in'); if (S.list.su && innerWidth >= 980) { const q = $('#ls-q'); if (q) q.focus({ preventScroll: true }); } setTimeout(() => box.classList.remove('su-in'), 900); }, reduceMotion.matches ? 0 : 230);
+}
+// scanned / typed code → show that item: clear filters, open its page, blink the card, load it in the update panel
+function suLocate(it) {
+  if (!it) return; beep(true);
+  S.list.q = ''; S.list.cat = 'all'; S.list.st = 'all'; const q = $('#ls-q'); if (q) q.value = ''; const c = $('#ls-cat'); if (c) c.value = 'all';
+  listRows(); suShow(it.id); suSelect(it.id);
+  const card = $(`#su-grid .su-card[data-id="${it.id}"]`);
+  if (card) { card.style.setProperty('--blc', 'var(--accent)'); card.classList.remove('blink'); void card.offsetWidth; card.classList.add('blink'); clearTimeout(card._bt); card._bt = setTimeout(() => card.classList.remove('blink'), 4200); const [x, y] = centerOf(card); FX.ring(x, y, [css('--mint'), css('--sky'), '#ffffff']); }
+  toast(t('su.found', { n: F(it, 'name') }));
+  if (q && innerWidth >= 980) q.focus();   // ready for the next scan
+}
+function suCard(it, k) {
+  const s = st(it.id), al = itemAlert(it.id), sel = SU.id === it.id;
+  return `<div class="su-card ${sel ? 'sel' : ''} ${s.qty <= 0 ? 'is-empty' : s.qty <= DB.settings.lowStock ? 'is-low' : ''}" data-id="${it.id}" style="--h:${it.hue};--k:${k}${al ? `;--alc:${NCK[al.k].c}` : ''}" tabindex="0">
+    <div class="suc-top">${avatar(it, 'sm')}<div class="min0"><b class="suc-name">${esc(F(it, 'name'))}</b><small>${esc(it.code)}${it.location ? ' · ' + esc(it.location) : ''}</small></div></div>
+    <div class="suc-mid"><div class="suc-amt"><span class="suc-l">${t('su.current')}</span><div><b class="num ${qCls(s.qty)}">${fmtNum(s.qty)}</b><small>${esc(F(it, 'unit'))}</small></div><span class="suc-prev" id="sup-${it.id}"></span></div><img class="suc-qr" src="${qrURL(it.code)}" alt=""></div>
+    <div class="suc-foot">${al ? `<span class="chip exp-chip" style="--alc:${NCK[al.k].c}">${ic(NCK[al.k].ic, 'ico-xs')} ${t('nc.k.' + al.k)}</span>` : '<span></span>'}<button type="button" class="btn btn-sm suc-go">${ic('edit', 'ico-sm')} ${t('su.update')}</button></div></div>`;
+}
+function suLeft(box, arr, anim) {
+  if (!box.querySelector('.su-split')) {
+    box.innerHTML = `<div class="su-split" id="su-split"><div class="su-left"><div class="su-head">${ic('clipcheck', 'ico-sm')} <b>${t('su.leftT')}</b><small>${t('su.leftS')}</small><span class="su-pg" id="su-pg"></span></div>
+      <div class="su-cat"><button type="button" class="su-nav prev" id="su-prev" aria-label="previous">${ic('chevL')}</button><div class="su-view" id="su-view"><div class="su-grid" id="su-grid"></div></div><button type="button" class="su-nav next" id="su-next" aria-label="next">${ic('chevR')}</button></div>
+      <div class="su-dots" id="su-dots"></div></div><aside class="su-right" id="su-panel"></aside></div>`;
+    $('#su-prev').onclick = () => suGo(-1); $('#su-next').onclick = () => suGo(1);
+    $('#su-dots').onclick = e => { const d = e.target.closest('[data-pg]'); if (d) suPage(+d.dataset.pg); };
+    const v = $('#su-view'); let sx = null, sy = 0;
+    v.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse') { sx = e.clientX; sy = e.clientY; } });
+    v.addEventListener('pointerup', e => { if (sx == null) return; const dx = e.clientX - sx, dy = e.clientY - sy; sx = null; if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.3) suGo(dx < 0 ? 1 : -1); });
+    v.addEventListener('wheel', e => { if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && Math.abs(e.deltaX) > 30) { e.preventDefault(); const n = Date.now(); if (n - (SU.wt || 0) > 450) { SU.wt = n; suGo(e.deltaX > 0 ? 1 : -1); } } }, { passive: false });
+    if (!anim) anim = true;
+  }
+  SU.arr = arr; suFit(); suPanel(); suPreview();
+}
+// fit the whole Stock Update view in the window (desktop) and work out how many cards fit on one page
+function suFit(keepScroll) {
+  const sp = $('#su-split'); if (!sp) return;
+  const fit = innerWidth >= 980 && innerHeight >= 560; document.body.classList.toggle('su-fit', fit);
+  if (fit) { if (!keepScroll) scrollTo(0, 0); const top = sp.getBoundingClientRect().top + scrollY; sp.style.height = Math.max(420, innerHeight - top - 22) + 'px'; } else sp.style.height = '';
+  const v = $('#su-view'), gap = innerWidth < 520 ? 9 : 12, mw = innerWidth < 520 ? 150 : 228, mh = innerWidth < 520 ? 176 : 196;
+  const cols = Math.max(1, Math.floor((v.clientWidth + gap) / (mw + gap)));
+  let rows = fit ? Math.max(1, Math.floor((v.clientHeight + gap) / (mh + gap))) : 3, compact = false;
+  if (fit && rows < 2 && (v.clientHeight - gap) / 2 >= 140) { rows = 2; compact = true; }
+  $('#su-grid').classList.toggle('compact', compact);
+  SU.cols = cols; SU.rows = rows; SU.per = cols * rows;
+  if (SU.first != null) { SU.page = Math.floor(SU.first / SU.per); SU.first = null; }
+  else if (SU.page == null || SU.page < 0) { const i = SU.id ? SU.arr.findIndex(x => x.id === SU.id) : -1; SU.page = i >= 0 ? Math.floor(i / SU.per) : 0; }
+  suPage(SU.page, 0);
+}
+function suPages() { return Math.max(1, Math.ceil((SU.arr || []).length / (SU.per || 1))); }
+function suGo(d) { const n = suPages(); if (n < 2) { const g = $('#su-grid'); if (g) { g.classList.remove('bump'); void g.offsetWidth; g.classList.add('bump'); } return; } suPage((SU.page + d + n) % n, d); }
+function suShow(id) { const i = (SU.arr || []).findIndex(x => x.id === id); if (i >= 0 && SU.per) { const p = Math.floor(i / SU.per); if (p !== SU.page) suPage(p, p > SU.page ? 1 : -1); } }
+function suPage(p, dir) {
+  const g = $('#su-grid'); if (!g) return; const n = suPages(); p = Math.max(0, Math.min(n - 1, p | 0)); if (dir == null) dir = p > (SU.page || 0) ? 1 : p < (SU.page || 0) ? -1 : 0; SU.page = p;
+  const arr = SU.arr || [], L = arr.slice(p * SU.per, (p + 1) * SU.per);
+  g.style.gridTemplateColumns = `repeat(${SU.cols},minmax(0,1fr))`; g.style.gridTemplateRows = document.body.classList.contains('su-fit') ? `repeat(${SU.rows},minmax(0,1fr))` : '';
+  g.innerHTML = L.length ? L.map((it, k) => suCard(it, k)).join('') : `<div class="empty-sm su-none">${ic('search')} ${t('list.none')}</div>`;
+  g.classList.remove('pg-next', 'pg-prev'); void g.offsetWidth; if (dir) g.classList.add(dir > 0 ? 'pg-next' : 'pg-prev');
+  $('#su-pg').innerHTML = arr.length ? t('su.pg', { a: fmtNum(p * SU.per + 1), b: fmtNum(Math.min(arr.length, (p + 1) * SU.per)), n: fmtNum(arr.length) }) : '';
+  $('#su-prev').disabled = $('#su-next').disabled = n < 2;
+  $('#su-dots').innerHTML = n > 1 ? Array.from({ length: n }, (_, i) => `<button type="button" data-pg="${i}" class="${i === p ? 'on' : ''}" aria-label="${i + 1}"></button>`).join('') : '';
+  suPreview();
+}
+addEventListener('resize', () => { if (S.view === 'list' && S.list.su && $('#su-split')) { clearTimeout(SU.rt); SU.rt = setTimeout(() => { SU.first = (SU.page || 0) * (SU.per || 1); suFit(true); }, 120); } });
+document.addEventListener('keydown', e => { if (S.view !== 'list' || !S.list.su || modalOpen() || e.target.closest('input,textarea,select,[contenteditable]')) return; if (e.key === 'ArrowRight') suGo(1); else if (e.key === 'ArrowLeft') suGo(-1); });
+/* hover: expiry dates of each stock-in, same dates merged */
+const ExpTip = (() => {
+  let el, cur = null, tm = 0;
+  const hide = () => { clearTimeout(tm); cur = null; if (el) el.classList.remove('on'); };
+  function show(card) {
+    const it = itemById(card.dataset.id); if (!it) return;
+    if (!el) { el = document.createElement('div'); el.className = 'exp-tip'; el.id = 'exp-tip'; document.body.appendChild(el); }
+    el.innerHTML = expTipHTML(it); el.classList.add('on');
+    const r = card.getBoundingClientRect(), w = el.offsetWidth, h = el.offsetHeight, m = 10;
+    let x = r.right + m; if (x + w > innerWidth - 8) x = r.left - w - m; if (x < 8) x = Math.min(innerWidth - w - 8, Math.max(8, r.left + r.width / 2 - w / 2));
+    let y = r.top; if (y + h > innerHeight - 8) y = innerHeight - h - 8; if (y < 70) y = 70;
+    if (card.classList.contains('row')) { x = Math.min(innerWidth - w - 8, Math.max(8, r.left + 230)); y = r.bottom + 6; if (y + h > innerHeight - 8) y = r.top - h - 6; }
+    el.style.left = x + 'px'; el.style.top = y + 'px';
+  }
+  const hov = e => { if (e.pointerType !== 'mouse') return; const c = e.target.closest('[data-av]') ? null : e.target.closest('.su-card[data-id],#ls-rows .row[data-id]'); if (c === cur) return; if (!c) { if (cur && !e.target.closest('.exp-tip')) hide(); return; } cur = c; clearTimeout(tm); tm = setTimeout(() => cur === c && show(c), 280); };
+  document.addEventListener('pointerover', hov); document.addEventListener('pointermove', hov, { passive: true });
+  addEventListener('scroll', hide, { passive: true }); document.addEventListener('pointerdown', hide); addEventListener('hashchange', hide);
+  return { hide };
+})();
+window.ExpTip = ExpTip;
+function suSelect(id) {
+  if (SU.id !== id) { SU.id = id; SU.reason = null; SU.qty = 1; SU.note = ''; }
+  $$('#su-grid .su-card').forEach(c => c.classList.toggle('sel', c.dataset.id === id));
+  suPanel(true);
+  const p = $('#su-panel'); if (p && innerWidth < 980) p.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+function suPreview() {
+  $$('#su-grid .suc-prev').forEach(e => { e.innerHTML = ''; e.classList.remove('on'); });
+  const it = itemById(SU.id); if (!it || !SU.reason) return; const s = st(it.id), q = Math.max(0, Math.floor(+SU.qty || 0)); const e = $('#sup-' + it.id); if (!e || !q) return;
+  if (q > s.qty) { e.style.setProperty('--rc', 'var(--danger)'); e.innerHTML = `${ic('alert', 'ico-xs')} <em>${t('su.tooMany', { q: fmtNum(s.qty) })}</em>`; e.classList.add('on'); return; }
+  e.style.setProperty('--rc', REASONS[SU.reason].c); e.innerHTML = `${ic('arrowR', 'ico-xs')} <b>${fmtNum(Math.max(0, s.qty - q))}</b> <em>−${fmtNum(q)}</em>`; e.classList.add('on');
+}
+function suPanel(anim) {
+  const P = $('#su-panel'); if (!P) return; const it = itemById(SU.id);
+  const recent = (id, n) => { const L = DB.txns.filter(x => x.type === 'adj' && (!id || x.itemId === id)).sort((a, b) => b.date - a.date).slice(0, n);
+    return L.length ? L.map(x => { const i2 = itemById(x.itemId), R = REASONS[x.reason] || REASONS.missing; return `<div class="sur-row" style="--rc:${R.c}"><span class="sur-i">${ic(R.ic, 'ico-sm')}</span><div class="min0"><b>${id ? t('su.r.' + x.reason) : esc(i2 ? F(i2, 'name') : '—')}</b><small>${id ? '' : t('su.r.' + x.reason) + ' · '}${fmtDT(x.date)}${x.note ? ' · ' + esc(x.note) : ''}</small></div><span class="sur-q">−${fmtNum(x.qty)}<small>−${fmtMoney(x.qty * x.unitCost)}</small></span></div>`; }).join('') : `<div class="empty-sm">${t('su.none')}</div>`; };
+  if (!it) {
+    P.innerHTML = `<div class="sup-empty"><div class="sup-ill">${ic('clipcheck')}<i></i><i></i></div><h3>${t('su.pickT')}</h3><p>${t('su.pickP')}</p><div class="sup-legend">${Object.keys(REASONS).map(r => `<span style="--rc:${REASONS[r].c}">${ic(REASONS[r].ic, 'ico-xs')} ${t('su.r.' + r)}</span>`).join('')}</div></div><div class="sup-hist"><h4>${ic('history', 'ico-sm')} ${t('su.recent')}</h4>${recent(null, 8)}</div>`;
+    P.style.removeProperty('--rc'); if (anim) P.classList.add('pop'); return;
+  }
+  const s = st(it.id), R = SU.reason ? REASONS[SU.reason] : null, exQ = expiredQty(it.id), lots = expGroups(it.id).filter(g => g.exp).slice(0, 4).map(g => ({ lot: g.n > 1 ? t('et.lots', { n: g.n }) : g.lots[0], exp: g.exp, rem: g.q }));
+  P.style.setProperty('--rc', R ? R.c : 'var(--accent)');
+  P.innerHTML = `<div class="sup-head">${avatar(it, '')}<div class="min0"><b>${esc(F(it, 'name'))}</b><small>${esc(it.code)} · ${esc(F(it, 'category'))}${it.location ? ' · ' + esc(it.location) : ''}</small></div><img class="sup-qr" src="${qrURL(it.code)}" alt=""><button type="button" class="icon-btn sm" id="su-close" aria-label="close">${ic('x', 'ico-sm')}</button></div>
+  <div class="sup-now"><span>${t('su.current')}</span><b class="num ${qCls(s.qty)}">${fmtNum(s.qty)}</b><small>${esc(F(it, 'unit'))}</small>${exQ ? `<span class="chip exp-chip" style="--alc:${NCK.expired.c}">${ic('hourglass', 'ico-xs')} ${t('nc.k.expired')} ${fmtNum(exQ)}</span>` : ''}</div>
+  ${(() => { const G = expGroups(it.id).filter(g => g.exp); if (!G.length) return ''; const t0 = day0(); return `<div class="sup-exps"><span>${ic('hourglass', 'ico-xs')} ${t('et.title')}</span>${G.slice(0, 6).map(g => { const dl = Math.round((g.exp - t0) / DAY); return `<em class="${dl < 0 ? 'past' : dl <= expWarnDef() ? 'soon' : ''}">${fmtDate(g.exp)} · <b>${fmtNum(g.q)}</b>${g.n > 1 ? ` <i>(${t('et.lots', { n: g.n })})</i>` : ''}</em>`; }).join('')}</div>`; })()}
+  <div class="sup-step"><span>1</span>${t('su.step1')}</div>
+  <div class="sup-reasons">${Object.keys(REASONS).map(r => `<button type="button" class="sur ${SU.reason === r ? 'on' : ''}" data-r="${r}" style="--rc:${REASONS[r].c}"><span class="sur-ic">${ic(REASONS[r].ic)}</span><b>${t('su.r.' + r)}</b><small>${t('su.r.' + r + '.d')}</small></button>`).join('')}</div>
+  <div class="sup-step ${SU.reason ? '' : 'dim'}"><span>2</span>${SU.reason ? t('su.qty.' + SU.reason) : t('su.step2')}</div>
+  <div class="sup-qty ${SU.reason ? '' : 'dim'}">${stepper('su-qty', SU.qty, 1)}<span class="sup-max">${t('su.max', { q: fmtNum(s.qty), u: esc(F(it, 'unit')) })}</span></div>
+  ${SU.reason === 'expired' ? `<div class="sup-lots">${lots.length ? lots.map(l => { const dl = Math.round((l.exp - day0()) / DAY); return `<div class="${dl < 0 ? 'past' : ''}"><span class="mono">${esc(l.lot || '—')}</span><span>${t('lb.exp')} ${fmtDate(l.exp)}</span><b>${fmtNum(l.rem)}</b></div>`; }).join('') : `<p>${t('su.noExp')}</p>`}${exQ ? `<button type="button" class="btn btn-sm" id="su-useexp">${ic('hourglass', 'ico-sm')} ${t('su.useExp', { n: fmtNum(exQ) })}</button>` : ''}</div>` : ''}
+  <div class="field sup-note ${SU.reason ? '' : 'dim'}"><label for="su-note">${t('f.note')} <em>${t('f.optional')}</em></label><input class="input" id="su-note" value="${esc(SU.note)}" placeholder="${esc(t('su.note.ph'))}" autocomplete="off"></div>
+  <div class="sup-ba" id="su-ba"></div>
+  <button type="button" class="btn btn-lg btn-block su-confirm" id="su-confirm">${ic('check')} ${t('su.confirm')}</button>
+  <div class="sup-hist"><h4>${ic('history', 'ico-sm')} ${t('su.recent')}</h4>${recent(it.id, 5)}</div>`;
+  if (anim) { P.classList.remove('pop'); void P.offsetWidth; P.classList.add('pop'); }
+  const qIn = $('#su-qty', P); qIn.max = Math.max(1, s.qty);
+  const upd = () => {
+    SU.qty = Math.max(0, Math.floor(+qIn.value || 0)); const q = SU.qty, after = s.qty - q, bad = q > s.qty, ok = SU.reason && q > 0 && !bad;
+    const pct = s.qty > 0 ? Math.max(0, Math.min(100, after / s.qty * 100)) : 0;
+    $('#su-ba', P).innerHTML = `<div class="ba"><span>${t('su.before')}</span><b>${fmtNum(s.qty)}</b></div><div class="ba-mid"><em>−${fmtNum(q)}</em>${ic('arrowR')}</div><div class="ba after ${bad ? 'bad' : ''}"><span>${t('su.after')}</span><b>${fmtNum(Math.max(0, after))}</b></div>
+      <div class="ba-bar"><i style="width:${pct}%"></i><i class="lost" style="width:${100 - pct}%"></i></div>
+      <div class="ba-loss">${bad ? `<b class="down">${t('su.tooMany', { q: fmtNum(s.qty) })}</b>` : `${t('su.loss')} <b>${fmtMoney(q * (s.avg || 0))}</b>`}</div>`;
+    const c = $('#su-confirm', P); c.disabled = !ok; c.classList.toggle('ready', !!ok);
+    suPreview();
+  };
+  qIn.addEventListener('input', upd); upd();
+  $('#su-note', P).oninput = e => SU.note = e.target.value;
+  P.onclick = e => {
+    if (e.target.closest('#su-close')) { SU.id = null; $$('#su-grid .su-card').forEach(c => c.classList.remove('sel')); suPanel(true); suPreview(); return; }
+    const r = e.target.closest('.sur[data-r]'); if (r) { SU.reason = r.dataset.r; if (SU.reason === 'expired' && exQ) SU.qty = Math.min(exQ, s.qty); suPanel(); const [x, y] = centerOf(r); FX.burst(x, y, { count: 10, speed: 3 }); setTimeout(() => { const q = $('#su-qty'); if (q) q.focus(); }, 30); return; }
+    if (e.target.closest('#su-useexp')) { qIn.value = Math.min(exQ, s.qty); upd(); return; }
+    const c = e.target.closest('#su-confirm'); if (c) {
+      if (!SU.reason) { shake($('.sup-reasons', P), t('su.pickReason')); return; }
+      try {
+        const x = doAdjust({ item: it, qty: SU.qty, reason: SU.reason, note: SU.note.trim() });
+        const [cx, cy] = centerOf(c); FX.confetti(cx, cy);
+        toast(t('su.done', { n: F(it, 'name'), q: fmtNum(x.qty), r: t('su.r.' + x.reason) }));
+        SU.reason = null; SU.qty = 1; SU.note = ''; listRows(); suPanel(true); suShow(it.id);
+        const card = $(`#su-grid .su-card[data-id="${it.id}"]`); if (card) { card.classList.add('flash'); setTimeout(() => card.classList.remove('flash'), 1400); }
+      } catch (err) { toast(err.message, 'err'); }
+    }
+  };
+}
 function openItemPopup(it, mode = 'out', { scanned = false } = {}) {
   const s = st(it.id), low = s.qty <= DB.settings.lowStock, cur = esc(DB.settings.currency);
   const m = openModal(`${scanned ? `<div class="scan-ok">${ic('check', 'ico-sm')} ${esc(t('pop.scanned', { c: it.code }))}</div>` : ''}
-   <div class="modal-h"><span class="avatar lg" style="--h:${it.hue}">${esc(initials(F(it, 'name')))}</span>
+   <div class="modal-h">${avatar(it, 'lg')}
      <div class="min0"><div class="meta"><span class="chip mono">${esc(it.code)}</span><span class="chip">${esc(F(it, 'category') || t('uncat'))}</span>${it.location ? `<span class="chip">${ic('pin', 'ico-xs')} ${esc(it.location)}</span>` : ''}</div><h3 class="m-title">${esc(F(it, 'name'))}</h3>${F(it, 'vendor') ? `<p class="m-sub">${esc(t('pop.vendor', { v: F(it, 'vendor') }))}</p>` : ''}</div>
      <button class="icon-btn modal-x" data-close aria-label="close">${ic('x')}</button></div>
    <div class="modal-b">
@@ -4588,6 +5374,8 @@ function openItemPopup(it, mode = 'out', { scanned = false } = {}) {
         <div class="field"><label for="pp-buy">${t('f.buy')}</label><div class="money"><span>${cur}</span><input id="pp-buy" type="number" class="input" min="0" step="0.01" value="${it.buyPrice ?? ''}"></div></div>
         <div class="field"><label for="pp-sell">${t('f.sell')}</label><div class="money"><span>${cur}</span><input id="pp-sell" type="number" class="input" min="0" step="0.01" value="${it.sellEst ?? ''}"></div></div>
         <div class="field"><label for="pp-party">${t('f.vendor')}</label><div class="combo"><input id="pp-party" class="input" value="${esc(F(it, 'vendor'))}" autocomplete="off"></div></div>
+        <div class="field"><label for="pp-exp">${t('f.exp')} <em>${t('f.optional')}</em></label><input type="date" id="pp-exp" class="input date-in"></div>
+        <div class="field"><label for="pp-warn">${t('f.warn')}</label><div class="warn-in"><input type="number" id="pp-warn" class="input" min="0" step="1" value="${expWarnDef()}"><span>${t('f.days')}</span></div></div>
         <div class="field full"><span class="flabel">${t('f.time')} <em>${t('f.time.auto')}</em></span>${liveTime()}</div></div>
         <div class="pp-sum" id="pp-sum"></div><button class="btn btn-sage btn-lg btn-block" id="pp-go">${ic('in')} ${t('btn.confirmIn')}</button>`;
     }
@@ -4613,7 +5401,7 @@ function openItemPopup(it, mode = 'out', { scanned = false } = {}) {
         FX.confetti(cx, cy); toast(t('toast.withdrew', { q, n: F(it, 'name'), v: fmtMoney(q * x.sellPrice) }) + ' · ' + fmtDT(x.date)); m.close(); refresh(); recordScanAction(it, 'out');
       } else {
         const bv = $('#pp-buy', E).value; if (bv === '') return toast(t('err.buy'), 'warn');
-        const x = doStockIn({ item: it, qty: q, buyPrice: +bv, sellEst: +$('#pp-sell', E).value || 0, vendor: $('#pp-party', E).value.trim() });
+        const x = doStockIn({ item: it, qty: q, buyPrice: +bv, sellEst: +$('#pp-sell', E).value || 0, vendor: $('#pp-party', E).value.trim(), exp: ymdToMs(($('#pp-exp', E) || {}).value), warn: Math.max(0, Math.floor(+($('#pp-warn', E) || {}).value || 0)) });
         FX.confetti(cx, cy); toast(t('toast.stocked', { q, n: F(it, 'name') })); m.close(); refresh(); openPrintModal(it, x, { success: true });
       }
     } catch (err) { toast(err.message, 'err'); }
@@ -4628,7 +5416,7 @@ function openQuickWithdraw(it) {
   const s = st(it.id), cur = esc(DB.settings.currency);
   if (s.qty <= 0) { toast(t('qw.outStock', { n: F(it, 'name') }), 'warn'); openItemPopup(it, 'in', { scanned: true }); return; }
   const m = openModal(`<div class="quick-head"><span class="fast-chip">${ic('zap', 'ico-sm')} ${t('qw.title')}</span><button class="icon-btn modal-x" data-close aria-label="close">${ic('x')}</button></div>
-   <div class="modal-h" style="padding-top:12px"><span class="avatar lg" style="--h:${it.hue}">${esc(initials(F(it, 'name')))}</span><div class="min0"><span class="chip mono">${esc(it.code)}</span><h3 class="m-title">${esc(F(it, 'name'))}</h3><p class="m-sub">${esc(t('qw.instock', { q: fmtNum(s.qty), u: F(it, 'unit'), p: fmtMoney(it.sellEst) }))}</p></div></div>
+   <div class="modal-h" style="padding-top:12px">${avatar(it, 'lg')}<div class="min0"><span class="chip mono">${esc(it.code)}</span><h3 class="m-title">${esc(F(it, 'name'))}</h3><p class="m-sub">${esc(t('qw.instock', { q: fmtNum(s.qty), u: F(it, 'unit'), p: fmtMoney(it.sellEst) }))}</p></div></div>
    <div class="modal-b"><div class="form-grid">
      <div class="field"><label for="qw-qty">${t('f.qty')}</label>${stepper('qw-qty', 1)}</div>
      <div class="field"><label for="qw-price">${t('wd.price')}</label><div class="money"><span>${cur}</span><input id="qw-price" type="number" class="input" min="0" step="0.01" value="${it.sellEst || 0}"></div></div>
@@ -4674,6 +5462,8 @@ function openSettings() {
     <div class="field"><span class="flabel">${t('set.theme')}</span><div class="seg seg-full" id="set-theme"><button data-th="light" class="${!isDark() ? 'on' : ''}">${ic('sun', 'ico-sm')} ${t('theme.light')}</button><button data-th="dark" class="${isDark() ? 'on' : ''}">${ic('moon', 'ico-sm')} ${t('theme.dark')}</button></div></div>
     <div class="field"><label for="set-cur">${t('set.cur')}</label><input class="input" id="set-cur" value="${esc(DB.settings.currency)}" maxlength="4"></div>
     <div class="field"><label for="set-low">${t('set.low')}</label><input class="input" id="set-low" type="number" min="0" value="${DB.settings.lowStock}"></div>
+    <div class="field full"><span class="flabel"><span class="lb-ic">${ic('zap', 'ico-xs')} ${t('perf.t')}</span></span><div class="seg perf-seg" id="set-perf">${['auto', 'lite', 'full'].map(k => `<button type="button" data-perf="${k}">${t('perf.' + k)}</button>`).join('')}</div><small class="perf-h" id="set-perf-h"></small></div>
+    <div class="field"><label for="set-expwarn">${t('set.expwarn')}</label><input class="input" id="set-expwarn" type="number" min="0" value="${expWarnDef()}"></div>
     <div class="field full set-sec"><span class="flabel">${t('set.coSec')}</span></div>
     <div class="field full"><label for="set-co">${t('set.co')}</label><input class="input" id="set-co" value="${esc(DB.settings.company)}" maxlength="60"></div>
     <div class="field full"><span class="flabel">${t('set.banks')} <em>${t('set.banksHint')}</em></span><div class="set-banks" id="set-banks"></div></div>
@@ -4745,7 +5535,9 @@ function openSettings() {
   $('#set-import', E).onchange = e => { const fl = e.target.files[0]; if (fl) { m.close(); importData(fl); } };
   $('#set-seed', E).onclick = () => { m.close(); seedFlow(); };
   $('#set-clear', E).onclick = () => { m.close(); clearFlow(); };
-  $('#set-save', E).onclick = e => { DB.settings.currency = $('#set-cur', E).value.trim() || '฿'; DB.settings.lowStock = Math.max(0, +$('#set-low', E).value || 0); DB.settings.company = $('#set-co', E).value.trim() || 'NXStock'; coBr.name = coBr.name.trim(); DB.settings.coBranch = { ...coBr }; { const keep = new Set(banks.map(bankKey)); DB.settings.bankAccounts = banks.slice(0, 20); for (const x of DB.bills) { const k = x.payment && x.payment.bank; if (k && (k.bank || k.accName || k.accNo) && !keep.has(bankKey(k))) DB.settings.bankHidden = [...new Set([...(DB.settings.bankHidden || []), bankKey(k)])]; } DB.settings.bankHidden = (DB.settings.bankHidden || []).filter(h => !keep.has(h)); } if (coBr.name) DB.settings.coBranches = distinct([coBr.name, ...(DB.settings.coBranches || [])]).slice(0, 20); for (const x of DB.bills) if (x.status === 'draft' && !x.lines.length) x.coBranch = { ...coBr }; Object.assign(DB.settings, { tax: $('#set-tax', E).value.trim(), tel: $('#set-tel', E).value.trim(), address: $('#set-addr', E).value.trim(), email: $('#set-email', E).value.trim(), signer: $('#set-signer', E).value.trim(), logo: img.logo, stamp: img.stamp, signature: img.signature, docColor: TH.c1, docColor2: TH.c2, docGrad: TH.grad, docAngle: TH.a, docBg: TH.bg, docPreset: TH.preset }); commit(); const [x, y] = centerOf(e.currentTarget); FX.confetti(x, y); toast(t('toast.saved')); m.close(); rerenderAll(); };
+  const perfDraw = () => { $$('#set-perf button', E).forEach(b => b.classList.toggle('on', b.dataset.perf === Perf.pref)); $('#set-perf-h', E).textContent = t(Perf.pref === 'auto' ? (Perf.lite ? 'perf.h.autoL' : 'perf.h.autoF') : Perf.pref === 'lite' ? 'perf.h.lite' : 'perf.h.full'); };
+  $('#set-perf', E).onclick = e => { const b = e.target.closest('[data-perf]'); if (!b) return; Perf.set(b.dataset.perf); perfDraw(); rerenderAll(); }; perfDraw();
+  $('#set-save', E).onclick = e => { DB.settings.currency = $('#set-cur', E).value.trim() || '฿'; DB.settings.lowStock = Math.max(0, +$('#set-low', E).value || 0); DB.settings.expWarn = Math.max(0, Math.floor(+$('#set-expwarn', E).value || 0)); DB.settings.company = $('#set-co', E).value.trim() || 'NXStock'; coBr.name = coBr.name.trim(); DB.settings.coBranch = { ...coBr }; { const keep = new Set(banks.map(bankKey)); DB.settings.bankAccounts = banks.slice(0, 20); for (const x of DB.bills) { const k = x.payment && x.payment.bank; if (k && (k.bank || k.accName || k.accNo) && !keep.has(bankKey(k))) DB.settings.bankHidden = [...new Set([...(DB.settings.bankHidden || []), bankKey(k)])]; } DB.settings.bankHidden = (DB.settings.bankHidden || []).filter(h => !keep.has(h)); } if (coBr.name) DB.settings.coBranches = distinct([coBr.name, ...(DB.settings.coBranches || [])]).slice(0, 20); for (const x of DB.bills) if (x.status === 'draft' && !x.lines.length) x.coBranch = { ...coBr }; Object.assign(DB.settings, { tax: $('#set-tax', E).value.trim(), tel: $('#set-tel', E).value.trim(), address: $('#set-addr', E).value.trim(), email: $('#set-email', E).value.trim(), signer: $('#set-signer', E).value.trim(), logo: img.logo, stamp: img.stamp, signature: img.signature, docColor: TH.c1, docColor2: TH.c2, docGrad: TH.grad, docAngle: TH.a, docBg: TH.bg, docPreset: TH.preset }); commit(); const [x, y] = centerOf(e.currentTarget); FX.confetti(x, y); toast(t('toast.saved')); m.close(); rerenderAll(); };
 }
 async function seedFlow() { if (DB.items.length && !(await confirmModal(t('seed.confirmT'), t('seed.confirmM'), t('btn.replace'), true))) return; seedDemo(); FX.rain(); toast(t('seed.done')); rerenderAll(); }
 async function clearFlow() { if (!(await confirmModal(t('clear.T'), t('clear.M'), t('btn.clear'), true))) return; DB.items = []; DB.txns = []; DB.bills = []; DB.settings.counter = 0; DB.settings.numSeq = 0; DB.settings.billCounter = 0; DB.settings.demo = false; S.recent = []; S.billId = null; commit(); toast(t('clear.done')); rerenderAll(); }
@@ -4754,7 +5546,7 @@ function exportData() { download(`nxstock-backup-${new Date().toISOString().slic
 function importData(file) { const r = new FileReader(); r.onload = () => { try { const d = JSON.parse(r.result); if (!Array.isArray(d.items) || !Array.isArray(d.txns)) throw 0; DB = { items: d.items, txns: d.txns, bills: d.bills || [], settings: { ...DB.settings, ...(d.settings || {}) } }; commit(); toast(t('import.ok')); rerenderAll(); } catch (e) { toast(t('import.bad'), 'err'); } }; r.readAsText(file); }
 function exportCSV(it, tx) {
   const head = ['Date & time', 'Type', 'Qty', 'Buy price', 'Unit cost', 'Sell estimate', 'Actual sell', 'Diff %', 'Profit', 'Lot', 'Party', 'Note'];
-  const rows = tx.map(x => { const out = x.type === 'out'; return [fmtDT(x.date), out ? 'Withdraw' : 'Stock in', x.qty, out ? '' : x.buyPrice, out ? x.unitCost : '', x.sellEst || '', out ? x.sellPrice : '', out && x.sellEst ? ((x.sellPrice - x.sellEst) / x.sellEst * 100).toFixed(2) : '', out ? ((x.sellPrice - x.unitCost) * x.qty).toFixed(2) : '', x.lot || '', x.party || '', x.note || '']; });
+  const rows = tx.map(x => { const out = x.type === 'out', adj = x.type === 'adj'; if (adj) return [fmtDT(x.date), 'Adjust - ' + x.reason, -x.qty, '', x.unitCost, '', '', '', (-x.qty * x.unitCost).toFixed(2), '', '', x.note || '']; return [fmtDT(x.date), out ? 'Withdraw' : 'Stock in', x.qty, out ? '' : x.buyPrice, out ? x.unitCost : '', x.sellEst || '', out ? x.sellPrice : '', out && x.sellEst ? ((x.sellPrice - x.sellEst) / x.sellEst * 100).toFixed(2) : '', out ? ((x.sellPrice - x.unitCost) * x.qty).toFixed(2) : '', x.lot || '', x.party || '', x.note || '']; });
   download(`${it.code}-history.csv`, '﻿' + [head, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n'), 'text/csv');
 }
 
@@ -4799,7 +5591,7 @@ function updCamBtn() { const b = $('#cam-toggle'); if (b) b.innerHTML = `${ic('c
 function renderRecent() {
   const box = $('#recent-scans'); if (!box) return;
   const list = S.recent.filter(r => itemById(r.id));
-  box.innerHTML = list.length ? list.map(r => { const it = itemById(r.id); return `<div class="rs" data-id="${it.id}"><span class="avatar sm" style="--h:${it.hue}">${esc(initials(F(it, 'name')))}</span><div class="min0"><b>${esc(F(it, 'name'))}</b><small>${esc(it.code)} · <span class="${qCls(st(it.id).qty)}">${fmtNum(st(it.id).qty)}</span> ${esc(F(it, 'unit'))}</small></div>${r.act === 'out' ? `<span class="chip badge-out">${ic('out', 'ico-xs')}</span>` : ''}<time>${esc(timeAgo(r.t))}</time></div>`; }).join('') : `<div class="empty-sm">${ic('scan')} ${t('recent.none')}</div>`;
+  box.innerHTML = list.length ? list.map(r => { const it = itemById(r.id); return `<div class="rs" data-id="${it.id}">${avatar(it, 'sm')}<div class="min0"><b>${esc(F(it, 'name'))}</b><small>${esc(it.code)} · <span class="${qCls(st(it.id).qty)}">${fmtNum(st(it.id).qty)}</span> ${esc(F(it, 'unit'))}</small></div>${r.act === 'out' ? `<span class="chip badge-out">${ic('out', 'ico-xs')}</span>` : ''}<time>${esc(timeAgo(r.t))}</time></div>`; }).join('') : `<div class="empty-sm">${ic('scan')} ${t('recent.none')}</div>`;
 }
 function recordScanAction(it, act) { const r = S.recent.find(x => x.id === it.id); if (r && Date.now() - r.t < 120000) { r.act = act; renderRecent(); } }
 async function startCamera() {
@@ -4961,6 +5753,7 @@ function handleCode(raw) {
   const code = String(raw).trim().replace(/^STKY:/i, '').split('|')[0].toUpperCase();
   const it = findItemByCode(raw);
   if (!it) { toast(t('scan.notFound', { c: code }), 'warn'); beep(false); return; }
+  if (S.view === 'list' && S.list.su && $('#su-split')) { suLocate(it); return; }
   beep(true);
   S.recent = [{ id: it.id, t: Date.now() }, ...S.recent.filter(r => r.id !== it.id)].slice(0, 8); renderRecent();
   const stage = $('#scan-stage'); const [x, y] = stage && S.view === 'scan' ? centerOf(stage) : [innerWidth / 2, innerHeight / 2];
@@ -5013,10 +5806,157 @@ function applyLang(l, srcEl) {
   LANG = l === 'th' ? 'th' : 'en'; try { localStorage.setItem('stockyard.lang', LANG); } catch (e) {}
   applyStaticI18n();
   if (srcEl) { const [x, y] = centerOf(srcEl); FX.burst(x, y, { count: 36, speed: 7 }); }
-  toast(t('lang.toast')); rerenderAll();
+  toast(t('lang.toast')); rerenderAll(); NC.render();
 }
 function rerenderAll() { setTimeout(() => Slides.setup(), 0); $('#view-list').dataset.built = ''; if (S.view !== 'scan') $('#view-scan').dataset.built = ''; render(S.view, null, true); if (S.view === 'scan') { $('#view-scan').dataset.built = ''; renderScan(); } stagger($('#view-' + S.view)); }
 
+/* ================= NOTIFICATION CENTRE: one draggable bell that snaps to the screen edges ================= */
+const NC = (() => {
+  let navFromNC = false, el, btn, panel, open = false, filter = 'all', pos = { side: 'r', f: .82 }, T = 0;
+  try { const p = JSON.parse(localStorage.getItem('nxstock.ncpos') || 'null'); if (p && 'lrtb'.includes(p.side)) pos = p; } catch (e) {}
+  const M = 14;
+  function place(anim) {
+    const w = btn.offsetWidth || 58, h = btn.offsetHeight || 58, W = innerWidth, H = innerHeight;
+    const f = Math.max(0, Math.min(1, pos.f)); let x, y;
+    if (pos.side === 'l' || pos.side === 'r') { x = pos.side === 'l' ? M : W - w - M; y = 70 + f * Math.max(0, H - h - 70 - M); }
+    else { y = pos.side === 't' ? 72 : H - h - M; x = M + f * Math.max(0, W - w - 2 * M); }
+    el.classList.toggle('snap', !!anim); el.style.transform = `translate(${x}px,${y}px)`; el.dataset.side = pos.side;
+    el.classList.toggle('lower', y + h / 2 > H / 2); el.classList.toggle('righter', x + w / 2 > W / 2);
+  }
+  function build() {
+    el = document.createElement('div'); el.className = 'nc'; el.id = 'nc';
+    el.innerHTML = `<button type="button" class="nc-btn" id="nc-btn" aria-label="notifications"><span class="nc-ring"></span><span class="nc-bell">${ic('bell')}</span><span class="nc-badge" id="nc-badge"></span></button><div class="nc-panel" id="nc-panel" role="dialog"></div>`;
+    document.body.appendChild(el); btn = $('#nc-btn'); panel = $('#nc-panel');
+    let sx = 0, sy = 0, ox = 0, oy = 0, drag = false, down = false;
+    btn.addEventListener('pointerdown', e => { if (e.button) return; down = true; drag = false; sx = e.clientX; sy = e.clientY; const r = btn.getBoundingClientRect(); ox = sx - r.left; oy = sy - r.top; btn.setPointerCapture(e.pointerId); });
+    btn.addEventListener('pointermove', e => { if (!down) return; if (!drag && Math.hypot(e.clientX - sx, e.clientY - sy) < 6) return;
+      if (!drag) { drag = true; el.classList.add('dragging'); setOpen(false); }
+      const x = Math.max(0, Math.min(innerWidth - btn.offsetWidth, e.clientX - ox)), y = Math.max(0, Math.min(innerHeight - btn.offsetHeight, e.clientY - oy));
+      el.classList.remove('snap'); el.style.transform = `translate(${x}px,${y}px)`; });
+    const up = e => { if (!down) return; down = false; if (!drag) { setOpen(!open); return; }
+      el.classList.remove('dragging'); const r = btn.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2, W = innerWidth, H = innerHeight;
+      const d = { l: cx, r: W - cx, t: cy, b: H - cy }; const side = Object.keys(d).sort((a, b) => d[a] - d[b])[0];
+      pos = { side, f: side === 'l' || side === 'r' ? (r.top - 70) / Math.max(1, H - r.height - 70 - M) : (r.left - M) / Math.max(1, W - r.width - 2 * M) };
+      pos.f = Math.max(0, Math.min(1, pos.f)); try { localStorage.setItem('nxstock.ncpos', JSON.stringify(pos)); } catch (er) {}
+      requestAnimationFrame(() => place(true)); setTimeout(() => el.classList.remove('snap'), 700); };
+    btn.addEventListener('pointerup', up); btn.addEventListener('pointercancel', up);
+    panel.addEventListener('click', e => {
+      const f = e.target.closest('[data-ncf]'); if (f) { filter = f.dataset.ncf; render(); return; }
+      if (e.target.closest('#nc-x')) { setOpen(false); return; }
+      const w = e.target.closest('[data-ncw]'); if (w) { const inp = $('#nc-warn'); inp.value = Math.max(0, (+inp.value || 0) + +w.dataset.ncw); return; }
+      if (e.target.closest('#nc-wsave')) { const v = Math.max(0, Math.floor(+$('#nc-warn').value || 0)); if (v !== expWarnDef()) { DB.settings.expWarn = v; commit(); toast(t('nc.saved', { d: v })); } return; }
+      const it = e.target.closest('[data-nci]'); if (it) { goto(it.dataset.nci, it.dataset.nck); if (innerWidth < 700) setOpen(false); }
+    });
+    document.addEventListener('pointerdown', e => { if (open && !el.contains(e.target)) setOpen(false); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && open) setOpen(false); });
+    addEventListener('resize', () => place(false));
+    addEventListener('hashchange', () => { if (!navFromNC) setOpen(false); navFromNC = false; });
+    setInterval(() => render(), 60000);
+    place(false); render();
+  }
+  function setOpen(v) { open = v; el.classList.toggle('open', v); if (v) { render(); const [x, y] = centerOf(btn); FX.burst(x, y, { count: 12, speed: 3 }); } }
+  function render() {
+    if (!el) return; const A = alerts(), cnt = { all: A.length }; A.forEach(a => cnt[a.k] = (cnt[a.k] || 0) + 1);
+    const top = A[0] ? NCK[A[0].k] : null; el.style.setProperty('--ncc', top ? top.c : 'var(--mint)'); el.classList.toggle('has', !!A.length);
+    $('#nc-badge').textContent = A.length > 99 ? '99+' : A.length || '';
+    btn.title = t('nc.drag');
+    if (!open) return;
+    const L = filter === 'all' ? A : A.filter(a => a.k === filter);
+    panel.innerHTML = `<div class="nc-h"><div><b>${ic('bell', 'ico-sm')} ${t('nc.title')}</b><small>${t('nc.drag')}</small></div><button type="button" class="icon-btn sm" id="nc-x" aria-label="close">${ic('x', 'ico-sm')}</button></div>
+      <div class="nc-f"><button type="button" data-ncf="all" class="${filter === 'all' ? 'on' : ''}">${t('nc.all')} <i>${cnt.all || 0}</i></button>${Object.keys(NCK).map(k => `<button type="button" data-ncf="${k}" class="${filter === k ? 'on' : ''}" style="--c:${NCK[k].c}"><span class="dot"></span>${t('nc.k.' + k)} <i>${cnt[k] || 0}</i></button>`).join('')}</div>
+      <div class="nc-list">${L.length ? L.map((a, i) => `<button type="button" class="nc-it" data-nci="${a.it.id}" data-nck="${a.k}" style="--c:${NCK[a.k].c};--i:${i}"><span class="nc-ic">${ic(NCK[a.k].ic, 'ico-sm')}</span><span class="min0"><small>${t('nc.k.' + a.k)}</small><b>${esc(F(a.it, 'name'))}</b><em>${esc(alertMsg(a))}</em></span>${ic('chevR', 'ico-sm')}</button>`).join('') : `<div class="nc-empty">${ic('check')}<span>${t('nc.empty')}</span></div>`}</div>
+      <div class="nc-w"><span>${ic('hourglass', 'ico-xs')} ${t('nc.warn')}</span><div class="nc-wi"><button type="button" data-ncw="-1">−</button><input id="nc-warn" type="number" min="0" value="${expWarnDef()}" class="input"><button type="button" data-ncw="1">+</button></div><small>${t('nc.days')}</small><button type="button" class="btn btn-sm" id="nc-wsave">${t('btn.save')}</button></div>`;
+  }
+  function goto(id, k) {
+    const c = (NCK[k] || NCK.low).c;
+    const go = () => { if (S.list.su) suShow(id); const sel = S.list.su ? `#su-grid .su-card[data-id="${id}"]` : `#ls-rows .row[data-id="${id}"]`; const r = $(sel); if (!r) return false;
+      r.scrollIntoView({ behavior: 'smooth', block: 'center' }); r.style.setProperty('--blc', c); r.classList.remove('blink'); void r.offsetWidth; r.classList.add('blink'); clearTimeout(r._bt); r._bt = setTimeout(() => r.classList.remove('blink'), 4200); return true; };
+    const vis = it => { const q = (S.list.q || '').trim().toLowerCase(); return !q && (S.list.cat === 'all') && (!S.list.st || S.list.st === 'all'); };
+    if (!vis()) { S.list.q = ''; S.list.cat = 'all'; S.list.st = 'all'; $('#view-list').dataset.built = ''; }
+    if (S.view === 'list' && $('#ls-rows')) { if (!vis() || !$('#ls-q')) renderList(); listRows(); setTimeout(go, 60); }
+    else { navFromNC = true; location.hash = 'list'; let n = 0; const tr = () => { if (!go() && n++ < 30) setTimeout(tr, 80); }; setTimeout(tr, 420); }
+  }
+  return { init: build, render, soon: () => { clearTimeout(T); T = setTimeout(render, 60); }, goto };
+})();
+window.NC = NC;
+/* ================= ITEM PICTURE POPUP: hover to peek, click to keep open, add / change / remove ================= */
+const PicPop = (() => {
+  let el, cur = null, anchor = null, pinned = false, tIn = 0, tOut = 0, mode = 'view', stream = null, cams = [], ci = 0;
+  const pin = () => { pinned = true; el.classList.add('pinned'); };
+  const stopCam = () => { if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; } };
+  const setMode = m => { if (mode === 'cam' && m !== 'cam') stopCam(); mode = m; render(); place(); };
+  function build() {
+    el = document.createElement('div'); el.className = 'pic-pop'; el.id = 'pic-pop'; document.body.appendChild(el);
+    el.addEventListener('pointerenter', () => clearTimeout(tOut));
+    el.addEventListener('pointerleave', e => { if (!pinned && e.pointerType === 'mouse') tOut = setTimeout(close, 260); });
+    el.addEventListener('click', e => { const b = e.target.closest('[data-pp]'); if (!b) { pinned = true; el.classList.add('pinned'); return; } const it = itemById(cur); if (!it) return close();
+      const a = b.dataset.pp; if (a === 'x') return close();
+      pin();
+      if (a === 'up') return setMode('choose');                       // ask: from this device, or the camera
+      if (a === 'back') return setMode('view');
+      if (a === 'file') { $('#pp-file', el).click(); return; }
+      if (a === 'cam') { if (matchMedia('(pointer:coarse)').matches || !(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)) { $('#pp-cap', el).click(); return; } return startCam(); }   // phone / tablet: the device's own camera app
+      if (a === 'flip') { ci = (ci + 1) % Math.max(1, cams.length); stopCam(); return startCam(); }
+      if (a === 'shot') return shoot();
+      if (b.dataset.pp === 'rm') { delete it.img; const c = PICS.get(it.id); if (c) { URL.revokeObjectURL(c.url); PICS.delete(it.id); } commit(); refreshAvatars(it); render(); toast(t('pic.removed')); } });
+    el.addEventListener('change', async e => { if (e.target.id !== 'pp-file' && e.target.id !== 'pp-cap') return; const f = e.target.files[0]; e.target.value = ''; const it = itemById(cur); if (!f || !it) return;
+      el.classList.add('busy'); const ok = await setItemPic(it, f); el.classList.remove('busy'); if (ok && cur === it.id) { mode = 'view'; render(); place(); const [x, y] = centerOf($('.pp-img', el)); FX.burst(x, y, { count: 14, speed: 4 }); } });
+    el.addEventListener('dragover', e => { e.preventDefault(); el.classList.add('drop'); });
+    el.addEventListener('dragleave', () => el.classList.remove('drop'));
+    el.addEventListener('drop', async e => { e.preventDefault(); el.classList.remove('drop'); if (window.NX_DEMO) return; const f = e.dataTransfer.files[0], it = itemById(cur); if (f && it && await setItemPic(it, f)) { stopCam(); mode = 'view'; render(); } });
+  }
+  // live camera inside the popup (computer webcam); phones use their own camera app instead
+  async function startCam() {
+    mode = 'cam'; render(); place(); const v = $('#pp-video', el), msg = $('.pp-cam-msg', el);
+    try {
+      const want = cams.length ? { deviceId: { exact: cams[ci % cams.length].deviceId } } : { facingMode: 'environment' };
+      stream = await navigator.mediaDevices.getUserMedia({ video: { ...want, width: { ideal: 1280 }, height: { ideal: 960 } }, audio: false });
+      if (mode !== 'cam' || !v.isConnected) return stopCam();
+      v.srcObject = stream; await v.play().catch(() => {}); el.classList.add('live'); if (msg) msg.hidden = true;
+      if (!cams.length) { try { cams = (await navigator.mediaDevices.enumerateDevices()).filter(d => d.kind === 'videoinput'); } catch (e) {} }
+      const fl = $('[data-pp=flip]', el); if (fl) fl.hidden = cams.length < 2;
+    } catch (e) { stopCam(); if (mode !== 'cam') return; if (msg) { msg.hidden = false; msg.innerHTML = `${ic('camera')}<b>${t('pic.noCam')}</b><span>${t('pic.noCamS')}</span>`; } const sh = $('[data-pp=shot]', el); if (sh) sh.disabled = true; }
+  }
+  function shoot() {
+    const v = $('#pp-video', el), it = itemById(cur); if (!v || !it || !v.videoWidth) return;
+    const cv = document.createElement('canvas'); cv.width = v.videoWidth; cv.height = v.videoHeight; cv.getContext('2d').drawImage(v, 0, 0);
+    const fl = $('.pp-flash', el); if (fl) { fl.classList.remove('go'); void fl.offsetWidth; fl.classList.add('go'); } try { beep(true); } catch (e) {}
+    cv.toBlob(async b => { if (!b) return; el.classList.add('busy'); const ok = await setItemPic(it, b); el.classList.remove('busy'); if (ok && cur === it.id) { stopCam(); mode = 'view'; render(); place(); const [x, y] = centerOf($('.pp-img', el)); FX.burst(x, y, { count: 14, speed: 4 }); } }, 'image/jpeg', .92);
+  }
+  function render() {
+    const it = itemById(cur); if (!it) return; const u = picURL(it), s = st(it.id); el.classList.remove('live'); el.dataset.mode = mode;
+    const img = mode === 'cam'
+      ? `<div class="pp-img cam"><video id="pp-video" autoplay playsinline muted></video><div class="pp-cam-msg"><span class="pp-spin"></span><span>${t('pic.camStart')}</span></div><i class="pp-flash"></i></div>`
+      : `<div class="pp-img${u ? '' : ' none'}" style="--h:${it.hue}">${u ? `<img src="${u}" alt="">` : `<span>${esc(initials(F(it, 'name')))}</span><small>${t('pic.none')}</small>`}</div>`;
+    const act = mode === 'cam'
+      ? `<div class="pp-act"><button type="button" class="btn btn-sm btn-primary pp-shot" data-pp="shot">${ic('camera', 'ico-sm')} ${t('pic.shot')}</button><button type="button" class="btn btn-sm pp-ico" data-pp="flip" hidden title="${esc(t('cs.switch'))}">${ic('history', 'ico-sm')}</button><button type="button" class="btn btn-sm" data-pp="back">${t('btn.cancel')}</button></div>`
+      : mode === 'choose'
+      ? `<div class="pp-choose"><button type="button" class="pp-ch" data-pp="file" style="--c:#3FA9FF"><span>${ic('image')}</span><b>${t('pic.fromDevice')}</b><small>${t('pic.fromDevice.s')}</small></button><button type="button" class="pp-ch" data-pp="cam" style="--c:#2BD9A0"><span>${ic('camera')}</span><b>${t('pic.fromCam')}</b><small>${t('pic.fromCam.s')}</small></button></div><button type="button" class="pp-back" data-pp="back">${ic('chevL', 'ico-xs')} ${t('pic.back')}</button>`
+      : `<div class="pp-act"><button type="button" class="btn btn-sm btn-primary" data-pp="up">${ic('camera', 'ico-sm')} ${t(u ? 'pic.change' : 'pic.add')}</button>${u ? `<button type="button" class="btn btn-sm pp-rm" data-pp="rm">${ic('trash', 'ico-sm')} ${t('pic.remove')}</button>` : ''}</div><small class="pp-hint">${t('pic.hint')}</small>`;
+    el.innerHTML = `<button type="button" class="icon-btn sm pp-x" data-pp="x" aria-label="close">${ic('x', 'ico-sm')}</button>${img}
+      <div class="pp-meta"><b>${esc(F(it, 'name'))}</b><small>${esc(it.code)} · ${fmtNum(Math.max(0, s.qty))} ${esc(F(it, 'unit'))}</small></div>${act}
+      <input type="file" id="pp-file" accept="image/*" hidden><input type="file" id="pp-cap" accept="image/*" capture="environment" hidden>`;
+  }
+  function place() {
+    if (!anchor || !anchor.isConnected) return; const r = anchor.getBoundingClientRect(), w = el.offsetWidth, h = el.offsetHeight, m = 12;
+    let x = r.right + m; if (x + w > innerWidth - 8) x = r.left - w - m; if (x < 8) x = Math.max(8, Math.min(innerWidth - w - 8, r.left + r.width / 2 - w / 2));
+    let y = r.top + r.height / 2 - h / 2; if (x > r.left - w && x < r.right) y = r.bottom + m; y = Math.max(8, Math.min(innerHeight - h - 8, y));
+    el.style.left = x + 'px'; el.style.top = y + 'px'; el.style.transformOrigin = `${x > r.left ? 0 : 100}% ${Math.max(0, Math.min(100, (r.top + r.height / 2 - y) / h * 100))}%`;
+  }
+  function open(a, keep) { if (!el) build(); clearTimeout(tOut); clearTimeout(tIn); const id = a.dataset.av; if (!itemById(id)) return;
+    if (cur === id && anchor === a && el.classList.contains('on')) { if (keep) pin(); return; }
+    stopCam(); mode = 'view'; cur = id; anchor = a; pinned = !!keep; render(); el.classList.toggle('pinned', pinned); el.classList.add('on'); place(); if (window.ExpTip) ExpTip.hide(); }
+  function close() { clearTimeout(tIn); clearTimeout(tOut); stopCam(); mode = 'view'; if (el) el.classList.remove('on', 'pinned', 'drop', 'live'); cur = null; anchor = null; pinned = false; }
+  document.addEventListener('pointerover', e => { if (e.pointerType !== 'mouse') return; const a = e.target.closest('[data-av]'); if (!a) return; clearTimeout(tOut); if (pinned) return; clearTimeout(tIn); tIn = setTimeout(() => a.isConnected && open(a, false), 320); });
+  document.addEventListener('pointerout', e => { if (e.pointerType !== 'mouse') return; const a = e.target.closest('[data-av]'); if (!a || a.contains(e.relatedTarget)) return; clearTimeout(tIn); if (!pinned) tOut = setTimeout(close, 260); });
+  // a click on the picture opens it and keeps it open (and never triggers the row / card underneath)
+  document.addEventListener('click', e => { const a = e.target.closest('[data-av]'); if (!a) return; e.preventDefault(); e.stopPropagation(); if (pinned && anchor === a) close(); else { close(); open(a, true); } }, true);
+  document.addEventListener('pointerdown', e => { if (pinned && el && !el.contains(e.target) && !e.target.closest('[data-av]')) close(); }, true);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && el && el.classList.contains('on')) close(); });
+  addEventListener('scroll', () => { if (el && el.classList.contains('on')) pinned ? place() : close(); }, { passive: true });
+  addEventListener('resize', () => el && el.classList.contains('on') && place()); addEventListener('hashchange', close);
+  return { open, close };
+})();
 /* ================= SAMPLE DATA ================= */
 function mulberry32(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let x = Math.imul(a ^ a >>> 15, 1 | a); x = x + Math.imul(x ^ x >>> 7, 61 | x) ^ x; return ((x ^ x >>> 14) >>> 0) / 4294967296; }; }
 function seedDemo() {
@@ -5065,9 +6005,25 @@ function seedDemo() {
   const drainTo = (idx, target) => { const it = DB.items[idx]; if (!it) return; let q = 0; for (const x of DB.txns) if (x.itemId === it.id) q += x.type === 'in' ? x.qty : -x.qty; if (q <= target) return;
     DB.txns.push({ id: uid(), itemId: it.id, type: 'out', qty: q - target, sellPrice: it.sellEst, sellEst: it.sellEst, unitCost: it.buyPrice, party: custs[0], note: '', date: now - (2 + idx) * 36e5 }); };
   drainTo(9, 0); drainTo(6, 0); drainTo(2, 4); drainTo(0, 6);
+  // green tea: two recent deliveries with the same expiry date (shown merged when hovering the item)
+  { const it = DB.items[8]; if (it) { const e0 = new Date(); e0.setHours(0, 0, 0, 0); e0.setDate(e0.getDate() + 190); [2, 1].forEach(d => DB.txns.push({ id: uid(), itemId: it.id, type: 'in', qty: 48, buyPrice: 12, sellEst: 20, lot: '', party: it.vendor, note: '', date: now - d * 864e5 - 6 * 36e5, exp: +e0 })); } }
   const dayCount = {};
   DB.txns.sort((a, b) => a.date - b.date).forEach(x => { if (x.type !== 'in') return; const d = new Date(x.date); const k = `${String(d.getFullYear()).slice(2)}${pad(d.getMonth() + 1)}${pad(d.getDate())}`; dayCount[k] = (dayCount[k] || 0) + 1; x.lot = `LOT-${k}-${pad(dayCount[k], 3)}`; });
+  // expiry dates on food & drink lots, so the bell has something to show
+  const shelf = { 0: 300, 1: 540, 5: 400, 8: 240 };
+  for (const x of DB.txns) { if (x.type !== 'in') continue; const k = DB.items.findIndex(i => i.id === x.itemId); if (shelf[k] && !x.exp) { const d = new Date(x.date); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() + shelf[k]); x.exp = +d; } }
+  // a few stock updates through the year (missing / broken / expired)
+  const adj = (idx, daysAgo, q, reason, note) => { const it = DB.items[idx]; if (!it) return; const date = now - daysAgo * 864e5 - 5 * 36e5; let have = 0, cost = 0, cq = 0; for (const x of DB.txns) if (x.itemId === it.id && x.date < date) { have += x.type === 'in' ? x.qty : -x.qty; if (x.type === 'in') { cost += x.qty * x.buyPrice; cq += x.qty; } } if (have < q) return; const x = { id: uid(), itemId: it.id, type: 'adj', reason, qty: q, unitCost: +(cq ? cost / cq : it.buyPrice).toFixed(4), note, date }; let run = 0, ok = true; for (const y of [...DB.txns, x].filter(y => y.itemId === it.id).sort((a, b) => a.date - b.date)) { run += y.type === 'in' ? y.qty : -y.qty; if (run < 0) { ok = false; break; } } if (ok) DB.txns.push(x); };
+  const nt = LANG === 'th' ? ['ตรวจนับประจำเดือน', 'กล่องบุบตอนขนส่ง', 'เลยวันหมดอายุ', 'ตกแตก'] : ['monthly count', 'crushed in delivery', 'past expiry date', 'dropped'];
+  adj(5, 300, 6, 'expired', nt[2]); adj(5, 120, 4, 'broken', nt[1]); adj(5, 40, 5, 'expired', nt[2]); adj(5, 9, 3, 'missing', nt[0]);
+  adj(8, 210, 12, 'expired', nt[2]); adj(8, 75, 8, 'expired', nt[2]); adj(8, 20, 6, 'broken', nt[3]);
+  adj(2, 160, 1, 'broken', nt[3]); adj(2, 12, 1, 'broken', nt[1]); adj(7, 95, 2, 'missing', nt[0]); adj(7, 6, 2, 'missing', nt[0]);
+  adj(0, 50, 1, 'broken', nt[1]); adj(3, 33, 3, 'missing', nt[0]); adj(4, 66, 2, 'broken', nt[1]); adj(1, 140, 2, 'broken', nt[1]); adj(1, 15, 3, 'expired', nt[2]);
   addSampleBill();
+  commit();
+  // the oldest lot still on the shelf: water already expired, green tea expires within a week, coffee within 3 weeks
+  const t0 = new Date(); t0.setHours(0, 0, 0, 0);
+  [[5, -3], [8, 6], [0, 18]].forEach(([idx, dd]) => { const it = DB.items[idx]; if (!it) return; const l = lotsOf(it.id)[0]; if (!l) return; const x = DB.txns.find(y => y.id === l.id); if (x) x.exp = +t0 + dd * 864e5; });
   commit();
 }
 
@@ -5077,24 +6033,27 @@ document.addEventListener('click', e => {
   const sb = e.target.closest('[data-step]');
   if (sb) { const inp = sb.parentElement.querySelector('input'); let v = (+inp.value || 0) + (+sb.dataset.step); v = Math.max(+inp.min || 0, v); if (inp.max && v > +inp.max) v = +inp.max; inp.value = v; inp.dispatchEvent(new Event('input', { bubbles: true })); }
   const gi = e.target.closest('[data-goto-item]'); if (gi) location.hash = 'item/' + gi.dataset.gotoItem;
+  if (e.target.closest('[data-su-open]')) { S.list.su = true; S.list.q = ''; S.list.cat = 'all'; S.list.st = 'all'; $('#view-list').dataset.built = ''; }
   const act = e.target.closest('[data-act="seed"]'); if (act) seedFlow();
   const clr = e.target.closest('[data-act="clear"]'); if (clr) { e.preventDefault(); clearFlow(); }
   if (e.target.closest('[data-act="settings"]')) openSettings();
-  if (e.target.closest('[data-act="attn"]')) { S.list.low = true; S.list.q = ''; S.list.cat = 'all'; S.list.sort = 'stockAsc'; $('#view-list').dataset.built = ''; location.hash = 'list'; }
+  if (e.target.closest('[data-act="attn"]')) { S.list.st = 'low'; S.list.q = ''; S.list.cat = 'all'; S.list.sort = 'stockAsc'; $('#view-list').dataset.built = ''; location.hash = 'list'; }
 });
 document.addEventListener('pointerdown', e => { const el = e.target.closest(INTERACTIVE); if (el) FX.digital(e.clientX, e.clientY); });
 let lastHover = null, lastSpark = 0;
 document.addEventListener('pointerover', e => { if (e.pointerType !== 'mouse' || document.body.classList.contains('model-drag')) return; const el = e.target.closest(INTERACTIVE + ',.card,.mcard'); if (el && el !== lastHover) { lastHover = el; const now = performance.now(); if (now - lastSpark > 90) { lastSpark = now; FX.sparkle(e.clientX, e.clientY); } } else if (!el) lastHover = null; });
 let lastTilt = null;
 const resetTilt = el => { el.style.removeProperty('--rx'); el.style.removeProperty('--ry'); };
-document.addEventListener('pointermove', e => {
-  if (e.pointerType !== 'mouse' || document.body.classList.contains('model-drag')) return;
+let pmEv = null, pmQ = 0;
+document.addEventListener('pointermove', e => { if (Perf.lite || e.pointerType !== 'mouse') return; pmEv = e; if (!pmQ) pmQ = requestAnimationFrame(() => { pmQ = 0; const ev = pmEv; pmEv = null; if (ev && ev.target && ev.target.isConnected) hoverFx(ev); }); }, { passive: true });
+function hoverFx(e) {
+  if (document.body.classList.contains('model-drag')) return;
   const g = e.target.closest('.card,.kpi,.tcard,.row'); if (g) { const r = g.getBoundingClientRect(); g.style.setProperty('--mx', (e.clientX - r.left) + 'px'); g.style.setProperty('--my', (e.clientY - r.top) + 'px'); }
   if (reduceMotion.matches) return;
   const el = e.target.closest('.tilt'); if (lastTilt && lastTilt !== el) resetTilt(lastTilt); if (!el) { lastTilt = null; return; }
   lastTilt = el; const r = el.getBoundingClientRect(); const x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
   el.style.setProperty('--ry', ((x - .5) * 10).toFixed(2) + 'deg'); el.style.setProperty('--rx', ((.5 - y) * 8).toFixed(2) + 'deg');
-});
+}
 document.addEventListener('keydown', e => { if (e.key === 'Escape') { if (picker) closePicker(); else if (modalStack.length) modalStack[modalStack.length - 1].close(); } });
 // handheld (keyboard-wedge) scanner support everywhere
 const kb = { buf: '', t: 0 };
@@ -5121,7 +6080,7 @@ function init() {
   let th0 = null; try { th0 = localStorage.getItem('stockyard.theme'); } catch (e) {} document.documentElement.dataset.theme = th0 === 'light' ? 'light' : 'dark'; Stars.recolor();
   $$('[data-ic]').forEach(el => { el.outerHTML = ic(el.dataset.ic); });
   applyStaticI18n(); chartDefaults();
-  if (!hadData || (DB.settings.demo && DB.settings.demoV !== 2)) { seedDemo(); DB.settings.demoV = 2; save(); } // first visit / refresh untouched sample data
+  if (!hadData || (DB.settings.demo && DB.settings.demoV !== 3)) { seedDemo(); DB.settings.demoV = 3; save(); } // first visit / refresh untouched sample data
   if (DB.settings.demo && !DB.settings.billSeeded && DB.items.length && !DB.bills.length) { addSampleBill(); save(); }
   $('#theme-btn').onclick = e => setTheme(isDark() ? 'light' : 'dark', e.currentTarget);
   $('#lang-btn').onclick = e => setLang(LANG === 'en' ? 'th' : 'en', e.currentTarget);
@@ -5130,6 +6089,8 @@ function init() {
   if (!location.hash) history.replaceState(null, '', '#home');
   addEventListener('hashchange', route);
   route();
+  NC.init();
+  window.__perfSay = () => { toast(t('perf.auto.on'), 'warn', 5200); rerenderAll(); }; Perf.probe();
   setTimeout(() => FX.rain(), 500);
 }
 /* ================= ACTIVATION (first use on each computer / browser) ================= */
@@ -5156,7 +6117,8 @@ function activationGate(done) { done(); }
 /* ================= DEMO MODE: view & click only — nothing can be typed, saved, printed or exported ================= */
 Object.assign(I18N.en,{'foot.local':'Demo version · nothing is saved','demo.pill':'DEMO · view only','demo.block':'Demo version — view only. Changes and printing are disabled.','demo.buy':'Get the full version: 065-938-9638'});
 Object.assign(I18N.th,{'foot.local':'เวอร์ชันสาธิต · ไม่บันทึกข้อมูล','demo.pill':'เวอร์ชันสาธิต · ดูอย่างเดียว','demo.block':'เวอร์ชันสาธิต — ดูได้อย่างเดียว ไม่สามารถบันทึก แก้ไข หรือพิมพ์ได้','demo.buy':'สนใจเวอร์ชันเต็ม โทร 065-938-9638'});
-const DEMO_BLOCK = ['#stk-confirm','#wd-confirm','#pp-go','#qw-go','#bf-add','#bf-scan','#bl-ok','#bl-confirm','#bl-cancel','#bl-new','#bl-reopen','#bp-edit','#bp-new','#bp-print','#pm-print','#pp-print',
+window.NX_DEMO = true;
+const DEMO_BLOCK = ['[data-pp=up]','[data-pp=rm]','#stk-confirm','#su-confirm','#nc-wsave','#wd-confirm','#pp-go','#qw-go','#bf-add','#bf-scan','#bl-ok','#bl-confirm','#bl-cancel','#bl-new','#bl-reopen','#bp-edit','#bp-new','#bp-print','#pm-print','#pp-print',
   '#ed-save','#dv-ok','#dv-del','#sig-ok','#sig-clear','#set-save','#set-export','#set-import','#set-clear','#set-seed','#hist-csv','#fast-toggle','#bf-nocust',
   '.combo-opt.add','[data-act=del]','[data-act=clear]','[data-act=seed]','[data-hcancel]','[data-hdel]','[data-ldel]','[data-sig-up]','[data-sig-draw]','[data-sig-clr]','[data-up]','[data-bdel]'].join(',');
 const DEMO_TYPE_OK = '#ls-q,#ls-cat,#ls-sort,#ls-low,#manual-code,#cs-code,#hist-f,.pf *,.picker *,#pm-size *,#pm-lang *';      // search, look-up and view filters only
